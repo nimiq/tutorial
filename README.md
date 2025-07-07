@@ -20,7 +20,7 @@
 
 ---
 
-## 🌟 What Makes This Tutorial Special?
+## What Makes This Tutorial Special?
 
 - **🔥 Zero Setup Required**: Everything runs in your browser using WebContainer
 - **📚 Beginner-Friendly**: No prior blockchain experience needed
@@ -70,7 +70,7 @@ By the end of this tutorial, you'll master:
 - Best practices and optimization
 - Real-world application patterns
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -111,7 +111,7 @@ pnpm lint
 pnpm lint:fix
 ```
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 nimiq-tutorial/
@@ -130,7 +130,7 @@ nimiq-tutorial/
 └── dist/                     # Production build
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **[TutorialKit](https://tutorialkit.dev/)**: Interactive tutorial framework
 - **[Astro](https://astro.build/)**: Static site generator
@@ -139,11 +139,11 @@ nimiq-tutorial/
 - **[UnoCSS](https://unocss.dev/)**: Atomic CSS engine
 - **[Nimiq Web Client](https://nimiq.dev/)**: Blockchain integration
 
-## 📝 Contributing
+## Contributing
 
 We welcome contributions! Here's how you can help:
 
-### 🐛 Reporting Issues
+### Reporting Issues
 
 1. Use the "Feedback & Bugs" button in the tutorial
 2. Create detailed issues with:
@@ -151,7 +151,7 @@ We welcome contributions! Here's how you can help:
    - Expected vs actual behavior
    - Browser and environment details
 
-### 🔧 Making Changes
+### Making Changes
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature`
@@ -159,7 +159,7 @@ We welcome contributions! Here's how you can help:
 4. Test thoroughly across different browsers
 5. Submit a pull request with a clear description
 
-### 📚 Content Guidelines
+### Content Guidelines
 
 When adding or modifying tutorial content:
 
@@ -169,7 +169,7 @@ When adding or modifying tutorial content:
 - **Test Everything**: Ensure all examples work correctly
 - **Add Comments**: Explain complex code blocks
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 This tutorial is designed to help developers:
 
@@ -179,13 +179,13 @@ This tutorial is designed to help developers:
 - **Develop best practices** for blockchain development
 - **Create production-ready** decentralized applications
 
-## 🔗 Additional Resources
+## Additional Resources
 
 - **📖 [Official Nimiq Documentation](https://nimiq.dev/)**
 - **🌐 [Nimiq Website](https://nimiq.com/)**
 - **💬 [Telegram](https://t.me/Nimiq/)**
 
-## 📄 License
+## License
 
 This project is open source and available under the [Apache License 2.0](LICENSE).
 
