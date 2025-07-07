@@ -1,6 +1,6 @@
 ---
 type: part
-title: Working with Transactions
+title: Working with Transactions and Wallets
 previews: false
 prepareCommands:
   - npm install

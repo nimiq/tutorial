@@ -1,6 +1,6 @@
 ---
 type: part
-title: Introduction
+title: Introduction to Nimiq Blockchain
 previews: false
 terminal:
   open: true

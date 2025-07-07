@@ -1,6 +1,6 @@
 ---
 type: part
-title: Connecting to the Network
+title: Connecting to the Nimiq Network
 previews: false
 prepareCommands:
   - npm install

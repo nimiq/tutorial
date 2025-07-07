@@ -1,6 +1,6 @@
 ---
 type: part
-title: Miscellaneous
+title: Advanced Features and Cashlinks
 previews: false
 prepareCommands:
   - npm install
