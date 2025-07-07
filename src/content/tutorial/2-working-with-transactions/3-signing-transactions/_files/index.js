@@ -1,5 +1,5 @@
-import { KeyPair, PrivateKey } from '@nimiq/core'
-import { setupConsensus } from './consensus.js'
+import { Address, KeyPair, PrivateKey, TransactionBuilder } from '@nimiq/core'
+import { setupConsensus } from './lib/consensus.js'
 // import { requestFromFaucet } from './faucet.js'
 
 console.log('🚀 Starting Nimiq client...')
@@ -15,20 +15,16 @@ async function main() {
     console.log('🌐 Network ID:', networkId)
 
     // Generate a new wallet
-
-    // ⚠️ Uncomment this when the faucet is working again
-    // Get funds from faucet (from previous lessons)
-    // await requestFromFaucet(client, address)
-
-    // ⚠️ At the moment we cannot use the faucet, so we need to use a private key that has funds
-    const privateKey = PrivateKey.fromHex('204aec9a093c8eb99d5136f9aa0910dd131934287035d03c7b9d5b2a6db042e3')
-
-    // const privateKey = PrivateKey.generate()
+    const privateKey = PrivateKey.generate()
     const keyPair = KeyPair.derive(privateKey)
     const address = keyPair.toAddress()
 
     console.log('🎉 Wallet created!')
     console.log('📍 Address:', address.toUserFriendlyAddress())
+
+    // TODO: Request funds from faucet
+
+    // TODO: Wait for funds to arrive
 
     // TODO: Read the current balance of our account
 

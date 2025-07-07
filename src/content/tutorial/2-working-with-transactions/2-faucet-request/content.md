@@ -16,7 +16,8 @@ Think of a faucet as a "free money dispenser" for testing:
 
 - **Free testnet NIM** for development and learning
 - **No real value** - safe to experiment with
-- **Multiple requests allowed** - you can get funds whenever you need them. Bear in mind, though, that there is a daily limit.
+- **Unlimited funds** - the faucet has infinite **testnet** NIM available!
+- **Multiple requests allowed** - you can get funds whenever you need them
 - **Developer-friendly** - helps you build without spending real money
 
 ## Your First Funding Request
@@ -104,9 +105,16 @@ When you run this code, watch the magic happen:
 
 You're about to receive your first blockchain transaction! 🌟
 
-## Alternative Funding Method
+## Unlimited Testnet Funds
 
-> **Note:** This tutorial uses the Nimiq testnet. If the faucet is temporarily unavailable or not providing the expected amount, you can use the [Nimiq Testnet Wallet](https://wallet.nimiq-testnet.com) to manually send some test funds to the address you're using in this tutorial.
+**Great news!** The faucet now has unlimited testnet NIM available. This means:
+
+- **No daily limits** - Request as many times as you need
+- **Instant availability** - Always ready for development
+- **Perfect for testing** - Build applications without worrying about running out of funds
+- **Multiple requests** - Great for testing scenarios that need multiple funded wallets
+
+Feel free to experiment and make multiple requests as you learn!
 
 ## What This Milestone Means
 

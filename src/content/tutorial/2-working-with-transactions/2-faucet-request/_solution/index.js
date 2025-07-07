@@ -11,6 +11,7 @@ async function main() {
 
     // Generate a new wallet
     const privateKey = PrivateKey.generate()
+
     const keyPair = KeyPair.derive(privateKey)
 
     const address = keyPair.toAddress()
@@ -26,7 +27,7 @@ async function main() {
     console.log(`💰 Initial Balance: ${nim} NIM`)
 
     // Request funds from faucet
-    await requestFromFaucet(client, address)
+    await requestFromFaucet(address)
 
     // Wait for funds to arrive
     console.log('⏳ Waiting for transaction to be processed...')
@@ -45,7 +46,7 @@ async function main() {
     }
   }
   catch (error) {
-    console.error('❌ Error:', error.message)
+    console.error('Error:', error)
   }
 }
 

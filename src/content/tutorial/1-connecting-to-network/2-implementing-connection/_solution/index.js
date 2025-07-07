@@ -6,10 +6,10 @@ async function main() {
   // Create a configuration builder
   const config = new ClientConfiguration()
 
-  // We can also use `MainAlbatross` for mainnet
+  // Select Testnet
   config.network('TestAlbatross')
 
-  // We must explicitly set the seed nodes for testnet
+  // Set seed nodes
   config.seedNodes([
     '/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss',
     '/dns4/seed2.pos.nimiq-testnet.com/tcp/8443/wss',

@@ -34,6 +34,7 @@ async function main() {
 
   console.log('✅ Consensus established!')
 
+  // Get the network ID
   const networkId = await client.getNetworkId()
   let networkName = 'unkwown'
   if (networkId === 5)
@@ -42,13 +43,13 @@ async function main() {
     networkName = 'mainnet'
   console.log(`🌐 Connected to ${networkName} network`)
 
-  // Get and log the current block height
+  // Get and log head block information
   const headBlock = await client.getHeadBlock()
   console.log(`📊 Current block height: ${headBlock.height}`)
   console.log(`🧱 Head block hash: ${headBlock.hash}`)
   console.log(`⏰ Head block timestamp: ${new Date(headBlock.timestamp * 1000)}`)
 
-  // Subscribe to new head blocks and get the full block
+  // Listen to new blocks and get the full block data
   await client.addHeadChangedListener(async (hash) => {
     const block = await client.getBlock(hash)
     console.log(`🎉 New block. Block number: ${block.height}. Hash: ${hash}`)

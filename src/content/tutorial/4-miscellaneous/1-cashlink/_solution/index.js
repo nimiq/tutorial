@@ -105,18 +105,22 @@ async function main() {
 
     const amount = 1e5 // 1 NIM in Luna
     const message = 'Enjoy your NIM!'
+    const hubDomain = network === 'MainAlbatross' ? 'https://hub.nimiq.com' : 'https://hub.nimiq-testnet.com'
 
+    // Generate a new keypair for the cashlink
     const cashlinkKeyPair = KeyPair.generate()
     const cashlinkAddress = cashlinkKeyPair.toAddress()
 
+    // Generate the cashlink URL
     const cashlinkUrl = getCashlinkUrl(network, cashlinkKeyPair, amount, message)
 
-    // Set up transaction listeners before funding the cashlink
+    // Set up transaction listeners
     await setupCashlinkListeners(client, cashlinkAddress, senderAddress)
 
     // Fund the cashlink
     const tx = await fundCashlink(client, keyPair, cashlinkAddress, amount)
 
+    // Print the cashlink URL
     console.log('\n🎉 Cashlink created successfully!')
     console.log(`\n\n 👉 Transaction Hash: ${tx.transactionHash}`)
     console.log(`\n\n 👉 Share or open this URL with someone to let them claim ${amount / 1e5} NIM!\n${cashlinkUrl}\n`)

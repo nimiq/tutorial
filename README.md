@@ -193,7 +193,7 @@ This project is open source and available under the [Apache License 2.0](LICENSE
 
 <p align="center">
   <strong>Ready to build your first blockchain app?</strong><br>
-  <a href="https://nimiq-tutorial.maximogarciamtnez.workers.dev/">Start the Tutorial →</a>
+  <a href="https://nimiq.guide/">Start the Tutorial →</a>
 </p>
 
 <p align="center">

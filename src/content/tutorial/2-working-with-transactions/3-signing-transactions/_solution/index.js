@@ -1,6 +1,6 @@
 import { Address, KeyPair, PrivateKey, TransactionBuilder } from '@nimiq/core'
-import { setupConsensus } from './consensus.js'
-// import { requestFromFaucet } from './faucet.js'
+import { setupConsensus } from './lib/consensus.js'
+import { requestFromFaucet } from './faucet.js'
 
 console.log('🚀 Starting Nimiq client...')
 
@@ -9,29 +9,26 @@ async function main() {
     // Setup consensus (from previous lessons)
     const client = await setupConsensus()
 
-    // Get current block height
     const headBlock = await client.getHeadBlock()
     console.log('📊 Current block height:', headBlock.height)
-
-    // Get network ID
     const networkId = await client.getNetworkId()
     console.log('🌐 Network ID:', networkId)
 
     // Generate a new wallet
-
-    // ⚠️ Uncomment this when the faucet is working again
-    // Get funds from faucet (from previous lessons)
-    // await requestFromFaucet(client, address)
-
-    // ⚠️ At the moment we cannot use the faucet, so we need to use a private key that has funds
-    const privateKey = PrivateKey.fromHex('204aec9a093c8eb99d5136f9aa0910dd131934287035d03c7b9d5b2a6db042e3')
-
-    // const privateKey = PrivateKey.generate()
+    const privateKey = PrivateKey.generate()
     const keyPair = KeyPair.derive(privateKey)
     const address = keyPair.toAddress()
 
     console.log('🎉 Wallet created!')
     console.log('📍 Address:', address.toUserFriendlyAddress())
+
+    // Request funds from faucet
+    console.log('💧 Requesting funds from faucet...')
+    await requestFromFaucet(client, address)
+
+    // Wait for funds to arrive
+    console.log('⏳ Waiting for funds to arrive...')
+    await new Promise(resolve => setTimeout(resolve, 3000))
 
     // Read the current balance of our account
     const account = await client.getAccount(address.toUserFriendlyAddress())
@@ -46,16 +43,19 @@ async function main() {
       return
     }
 
-    // We need to find the most recent transaction that is not from us
+    // Find the most recent transaction that is not from us (faucet transaction)
     const firstTx = txHistory.find(tx => tx.sender !== address.toUserFriendlyAddress())
     const recipientAddress = Address.fromUserFriendlyAddress(firstTx.sender)
     console.log('🔍 Faucet address found:', recipientAddress.toUserFriendlyAddress())
+
+    // Calculate amounts for each transaction (half each)
+    const halfBalance = BigInt(account.balance / 2)
 
     // Create a basic transaction sending half of the funds back to the faucet sender
     const basicTx = TransactionBuilder.newBasic(
       address, // sender
       recipientAddress, // recipient
-      BigInt(account.balance / 2), // value (half of balance)
+      halfBalance, // value (half of balance)
       0n, // fee (0 in Nimiq!)
       headBlock.height, // validity start height
       networkId, // testnet or mainnet
@@ -69,7 +69,6 @@ async function main() {
 
     // Sign the basic transaction
     basicTx.sign(keyPair)
-
     console.log('✍️ Basic Transaction signed successfully!')
 
     // Send the basic transaction
@@ -85,7 +84,7 @@ async function main() {
       address, // sender
       recipientAddress, // recipient
       messageBytes, // data
-      BigInt(account.balance / 2), // value (remaining half)
+      halfBalance, // value (remaining half)
       0n, // fee (0 in Nimiq!)
       headBlock.height, // validity start height
       networkId, // testnet or mainnet
@@ -98,7 +97,7 @@ async function main() {
     console.log('  Message:', message)
     console.log('  Type: Extended with Data')
 
-    // Sign both transactions
+    // Sign the extended transaction
     extendedTx.sign(keyPair)
     console.log('✍️ Extended Transaction signed successfully!')
 
@@ -107,13 +106,12 @@ async function main() {
     const extendedTxHash = await client.sendTransaction(extendedTx)
     console.log('✅ Extended transaction sent! Hash:', extendedTxHash.serializedTx)
 
-    console.log('🎉 All transactions sent successfully!')
-    console.log('')
-    console.log('📋 Summary:')
-    console.log(`  • Basic transaction: ${account.balance / 2 / 1e5} NIM`)
-    console.log(`  • Extended transaction: ${account.balance / 2 / 1e5} NIM with message "${message}"`)
-    console.log(`  • Total sent: ${account.balance / 1e5} NIM`)
-    console.log('  • Both transactions are now being processed by the network!')
+    // Display summary
+    console.log('\n🎉 Transaction Summary:')
+    console.log('📝 Basic Transaction Hash:', basicTxHash.serializedTx)
+    console.log('📝 Extended Transaction Hash:', extendedTxHash.serializedTx)
+    console.log('💰 Total Amount Sent:', Number(basicTx.value + extendedTx.value) / 1e5, 'NIM')
+    console.log('📤 Both transactions sent successfully!')
   }
   catch (error) {
     console.error('❌ Error:', error.message)

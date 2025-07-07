@@ -17,7 +17,7 @@ meta:
     - blockchain tutorial
   author: Nimiq Team
   robots: index, follow
-  canonical: https://nimiq-tutorial.maximogarciamtnez.workers.dev/
+  canonical: https://nimiq.guide/
   language: en
   category: blockchain development
   difficulty: beginner
