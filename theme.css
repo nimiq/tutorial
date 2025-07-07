@@ -21,6 +21,7 @@
 /* TutorialKit Theme using Nimiq Design System */
 :root,
 :root[data-theme='light'] {
+  color-scheme: light;
   /* High-level app styling */
   --tk-elements-app-textColor: var(--colors-neutral);
   --tk-elements-app-backgroundColor: var(--colors-neutral-0);
@@ -102,58 +103,6 @@
   --tk-terminal-magenta: var(--colors-purple);
 }
 
-:root[data-theme='dark'] {
-  /* High-level app styling for dark mode */
-  --tk-elements-app-textColor: var(--colors-neutral-0);
-  --tk-elements-app-backgroundColor: var(--colors-darkblue);
-  --tk-elements-app-borderColor: var(--colors-neutral-800);
-
-  /* Panel headers */
-  --tk-elements-panel-header-backgroundColor: var(--colors-neutral-1100);
-  --tk-elements-panel-header-borderColor: var(--colors-neutral-300);
-  --tk-elements-panel-header-textColor: var(--colors-neutral-100);
-
-  /* Background tokens for dark mode */
-  --tk-background-primary: var(--colors-darkblue);
-  --tk-background-secondary: var(--colors-neutral-900);
-  --tk-background-active: var(--colors-neutral-800);
-  --tk-background-active-secondary: var(--colors-darkerblue);
-  --tk-background-brighter: var(--colors-neutral-800);
-  --tk-background-accent: var(--colors-blue);
-  --tk-background-accent-secondary: var(--colors-blue);
-  --tk-background-accent-active: var(--colors-blue-1100);
-
-  /* Text tokens for dark mode */
-  --tk-text-primary: var(--colors-neutral-0);
-  --tk-text-primary-inverted: var(--colors-darkblue);
-  --tk-text-secondary: var(--colors-neutral-400);
-  --tk-text-secondary-inverted: var(--colors-neutral-700);
-  --tk-text-disabled: var(--colors-neutral-600);
-  --tk-text-body: var(--colors-neutral-300);
-  --tk-text-heading: var(--colors-neutral-0);
-  --tk-text-active: var(--colors-neutral-0);
-
-  /* Border tokens for dark mode */
-  --tk-border-primary: var(--colors-neutral-800);
-  --tk-border-secondary: var(--colors-neutral-800);
-  --tk-border-brighter: var(--colors-neutral-700);
-
-  /* Top Bar styling for dark mode */
-  --tk-elements-topBar-backgroundColor: var(--colors-darkblue);
-  --tk-elements-topBar-borderColor: var(--colors-neutral-800);
-  --tk-elements-topBar-textColor: var(--colors-neutral-0);
-
-  /* Editor styling for dark mode */
-  --tk-elements-editor-textColor: var(--colors-neutral-0);
-  --tk-elements-editor-backgroundColor: var(--colors-darkblue);
-  --tk-elements-editor-activeLineBackgroundColor: var(--colors-neutral-900);
-  --tk-elements-editor-cursorColor: var(--colors-blue);
-
-  /* Terminal for dark mode */
-  --tk-terminal-foreground: var(--colors-neutral-0);
-  --tk-terminal-background: var(--colors-darkblue);
-}
-
 .markdown-content :where(h1, h2, h3, h4) {
   --heading-font-weight: 700;
 }
@@ -210,10 +159,6 @@
 
 div[role='separator']:hover::after {
   background-color: color-mix(in srgb, var(--colors-neutral) 3%, transparent);
-
-  :root[data-theme='dark'] & {
-    background-color: color-mix(in srgb, var(--colors-neutral-0) 8%, transparent);
-  }
 }
 
 .cm-editor * {
