@@ -1,5 +1,5 @@
 {
-  "name": "nimiq-tutorial",
+  "name": "tutorials",
   "compatibility_date": "2025-06-07",
   "assets": {
     "directory": "./dist"
