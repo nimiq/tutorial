@@ -5,10 +5,11 @@ export type FormType = 'bug' | 'idea' | 'feedback'
 export interface WidgetProps {
   app: string
   lang?: string
-  feedbackEndpoint?: string
-  dev?: boolean
-  initialForm?: FormType
+  feedbackEndpoint: string
+  tags?: string[]
+  initialForm?: 'bug' | 'idea' | 'feedback'
   dark?: boolean
+  dev?: boolean
 }
 
 export interface WidgetEvents {
@@ -19,17 +20,19 @@ export interface WidgetEvents {
   'before-submit': { formData: FormData, type: FormType, app: string }
 }
 
+export interface WidgetCommunication {
+  on: (event: string, callback: (data: any) => void) => void
+  off: (event: string, callback?: (data: any) => void) => void
+  emit: (event: string, data: any) => void
+}
+
 export interface WidgetInstance {
   showFormGrid: () => void
-  showForm: (type: FormType) => void
+  showForm: (formType: 'bug' | 'idea' | 'feedback') => void
   closeWidget: () => void
   goBack: () => void
+  communication?: WidgetCommunication
   destroy: () => void
-  communication?: {
-    on: <K extends keyof WidgetEvents>(event: K, callback: (data: WidgetEvents[K]) => void) => void
-    off: <K extends keyof WidgetEvents>(event: K, callback?: (data: WidgetEvents[K]) => void) => void
-    emit: <K extends keyof WidgetEvents>(event: K, data: WidgetEvents[K]) => void
-  }
 }
 
 declare global {
