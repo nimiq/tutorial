@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-<a href="https://tutorial.nimiq.dev" target="_blank">Interactive Tutorials</a>&nbsp; &nbsp; &nbsp;
+<a href="https://nimiq.guide" target="_blank">Interactive Tutorials</a>&nbsp; &nbsp; &nbsp;
 <a href="https://nimiq.com/developers/web-client" target="_blank">Web Client Documentation</a>
 <a href="https://nimiq.com/developers/" target="_blank">Developer Center</a>
 </p>
