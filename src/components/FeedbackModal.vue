@@ -26,18 +26,18 @@ async function mountWidget() {
   await nextTick()
   if (!widgetContainer.value)
     return
-  
+
   try {
     console.log('[FeedbackWidget] Attempting to mount widget...')
     console.log('[FeedbackWidget] window.mountFeedbackWidget available:', typeof window.mountFeedbackWidget)
-    
+
     // Check if the function is available
     if (typeof window.mountFeedbackWidget !== 'function') {
       console.error('[FeedbackWidget] mountFeedbackWidget function not available on window object')
       console.log('[FeedbackWidget] Available window properties:', Object.keys(window).filter(key => key.includes('feedback') || key.includes('mount')))
       throw new Error('Feedback widget script not loaded or mountFeedbackWidget function not found')
     }
-    
+
     console.log('[FeedbackWidget] Calling mountFeedbackWidget...')
     widgetInstance.value = window.mountFeedbackWidget('#feedback-widget', {
       app: 'nimiq-tutorial',
@@ -46,9 +46,9 @@ async function mountWidget() {
       dev: import.meta.env.DEV,
       dark: document.documentElement.getAttribute('data-theme') === 'dark',
     })
-    
+
     console.log('[FeedbackWidget] Widget instance created:', widgetInstance.value)
-    
+
     widgetInstance.value.communication?.on('form-selected', (formType) => {
       console.log('Form selected:', formType)
     })
@@ -73,7 +73,7 @@ async function mountWidget() {
       message: errorObj.message,
       stack: errorObj.stack,
       widgetContainer: widgetContainer.value,
-      mountFunctionType: typeof window.mountFeedbackWidget
+      mountFunctionType: typeof window.mountFeedbackWidget,
     })
     showFallbackForm.value = true
     isWidgetLoaded.value = false

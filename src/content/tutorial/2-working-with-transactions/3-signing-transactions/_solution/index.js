@@ -1,6 +1,6 @@
 import { Address, KeyPair, PrivateKey, TransactionBuilder } from '@nimiq/core'
-import { setupConsensus } from './lib/consensus.js'
 import { requestFromFaucet } from './faucet.js'
+import { setupConsensus } from './lib/consensus.js'
 
 console.log('🚀 Starting Nimiq client...')
 

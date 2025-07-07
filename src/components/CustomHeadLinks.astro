@@ -37,33 +37,3 @@ import { SEO } from 'astro-seo'
 <!-- Nimiq Feedback Widget CSS/JS -->
 <link rel="stylesheet" href="/widget.css" />
 <script is:inline src="/widget.js"></script>
-
-<!-- Debug widget loading -->
-<script>
-  console.log('[FeedbackWidget] Checking widget files...')
-  
-  // Check if widget.css loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    const cssLink = document.querySelector('link[href="/widget.css"]')
-    if (cssLink) {
-      console.log('[FeedbackWidget] CSS link found:', cssLink)
-    } else {
-      console.error('[FeedbackWidget] CSS link not found')
-    }
-    
-    // Check if mountFeedbackWidget function is available
-    console.log('[FeedbackWidget] mountFeedbackWidget available:', typeof window.mountFeedbackWidget)
-    if (typeof window.mountFeedbackWidget === 'function') {
-      console.log('[FeedbackWidget] ✅ Widget script loaded successfully')
-    } else {
-      console.error('[FeedbackWidget] ❌ Widget script failed to load or function not exposed')
-    }
-  })
-  
-  // Listen for load errors
-  window.addEventListener('error', (e) => {
-    if (e.target.src && e.target.src.includes('widget')) {
-      console.error('[FeedbackWidget] Failed to load:', e.target.src)
-    }
-  })
-</script>
