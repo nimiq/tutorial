@@ -32,7 +32,7 @@ html {
 }
 
 /* Additional safeguard: if any element somehow gets dark theme styles, override them */
-[data-theme="dark"] * {
+[data-theme='dark'] * {
   color-scheme: light !important;
 }
 

@@ -43,7 +43,7 @@ import { SEO } from 'astro-seo'
   // Force light mode by ensuring data-theme is always 'light'
   // This overrides any system preferences or theme switching attempts
   document.documentElement.setAttribute('data-theme', 'light')
-  
+
   // Watch for any attempts to change the theme and override them
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -55,9 +55,9 @@ import { SEO } from 'astro-seo'
       }
     })
   })
-  
+
   observer.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['data-theme']
+    attributeFilter: ['data-theme'],
   })
 </script>
