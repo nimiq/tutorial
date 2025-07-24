@@ -2,6 +2,40 @@
 @import './node_modules/nimiq-css/dist/css/colors.css';
 @import './node_modules/nimiq-css/dist/css/fonts.css';
 
+/* Force light mode globally - override system preferences and light-dark() functions */
+* {
+  color-scheme: light !important;
+}
+
+html {
+  color-scheme: light !important;
+}
+
+/* Ensure prefers-color-scheme media queries don't interfere */
+@media (prefers-color-scheme: dark) {
+  * {
+    color-scheme: light !important;
+  }
+}
+
+/* Override any dark mode utility classes - force light mode styles */
+.dark\:bg-neutral-900,
+.dark\:ring-neutral-800,
+.dark\:text-neutral,
+.dark\:text-neutral-400,
+.dark\:bg-green-900,
+.dark\:text-green-400,
+.dark\:text-neutral-500,
+.dark\:hover\:text-neutral-300:hover {
+  /* These classes should not apply in forced light mode */
+  /* Let the light mode styles take precedence */
+}
+
+/* Additional safeguard: if any element somehow gets dark theme styles, override them */
+[data-theme="dark"] * {
+  color-scheme: light !important;
+}
+
 /* Add Mulish Variable Font (local) */
 @font-face {
   font-family: 'Mulish';
@@ -18,10 +52,11 @@
   font-display: swap;
 }
 
-/* TutorialKit Theme using Nimiq Design System */
+/* TutorialKit Theme using Nimiq Design System - Force Light Mode Only */
 :root,
-:root[data-theme='light'] {
-  color-scheme: light;
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  color-scheme: light !important;
   /* High-level app styling */
   --tk-elements-app-textColor: var(--colors-neutral);
   --tk-elements-app-backgroundColor: var(--colors-neutral-0);

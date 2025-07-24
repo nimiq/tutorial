@@ -44,7 +44,7 @@ async function mountWidget() {
       lang: 'en',
       feedbackEndpoint: 'https://nimiq-feedback.je-cf9.workers.dev/api/feedback',
       dev: import.meta.env.DEV,
-      dark: document.documentElement.getAttribute('data-theme') === 'dark',
+      dark: false, // Always use light mode
     })
 
     console.log('[FeedbackWidget] Widget instance created:', widgetInstance.value)

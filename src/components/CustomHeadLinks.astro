@@ -37,3 +37,27 @@ import { SEO } from 'astro-seo'
 <!-- Nimiq Feedback Widget CSS/JS -->
 <link rel="stylesheet" href="/widget.css" />
 <script is:inline src="/widget.js"></script>
+
+<!-- Force light mode by preventing dark theme attributes -->
+<script is:inline>
+  // Force light mode by ensuring data-theme is always 'light'
+  // This overrides any system preferences or theme switching attempts
+  document.documentElement.setAttribute('data-theme', 'light')
+  
+  // Watch for any attempts to change the theme and override them
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        const currentTheme = document.documentElement.getAttribute('data-theme')
+        if (currentTheme !== 'light') {
+          document.documentElement.setAttribute('data-theme', 'light')
+        }
+      }
+    })
+  })
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  })
+</script>
