@@ -1,5 +1,8 @@
 ---
 import FeedbackModal from './FeedbackModal.vue'
+
+// Use a static version or get it from environment
+const version = import.meta.env.PACKAGE_VERSION || '0.0.2'
 ---
 
 <nav class="flex items-center justify-between gap-4 px-4 py-3 border-b border-neutral-200">
@@ -36,3 +39,18 @@ import FeedbackModal from './FeedbackModal.vue'
   <slot name="open-in-stackblitz-link" />
   <slot name="login-button" />
 </nav>
+
+<script is:inline define:vars={{ version }}>
+  // Add version info to logo title on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Find the logo element (assuming it's the first child of the logo slot)
+    const logoSlot = document.querySelector('nav [slot="logo"]') || 
+                     document.querySelector('nav a[href="/"]') ||
+                     document.querySelector('nav img') ||
+                     document.querySelector('nav svg')
+    
+    if (logoSlot) {
+      logoSlot.title = `Version ${version}`
+    }
+  })
+</script>
