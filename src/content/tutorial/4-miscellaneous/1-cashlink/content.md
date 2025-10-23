@@ -14,7 +14,7 @@ terminal:
 
 # Cashlinks: Shareable Blockchain Payments
 
-We will learn how to create a Nimiq **cashlink**—a shareable payment link that lets anyone claim NIM from you, powered by the blockchain. You
+We will learn how to create a Nimiq **cashlink**—a shareable payment link that lets anyone claim NIM from you, powered by the blockchain.
 
 Think of a cashlink like a digital gift card or a prepaid scratch-off ticket: you load it with value, share the link, and whoever receives it can "scratch off" (open the link) to claim the funds. No account or app needed—just the link! 🎁
 
