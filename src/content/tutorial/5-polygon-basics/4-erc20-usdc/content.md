@@ -23,26 +23,27 @@ Native POL transfers are only half the story on Polygon. The majority of assets 
 
 **ERC20** defines a common interface that every compliant token must expose. Once you know the standard method names, you can work with almost any token:
 
-- `transfer(to, amount)` moves tokens between addresses.  
-- `balanceOf(address)` reports the balance for a specific holder.  
-- `approve(spender, amount)` grants another address permission to move tokens on your behalf.  
-- `decimals()` reveals how many decimal places the token uses.  
+- `transfer(to, amount)` moves tokens between addresses.
+- `balanceOf(address)` reports the balance for a specific holder.
+- `approve(spender, amount)` grants another address permission to move tokens on your behalf.
+- `decimals()` reveals how many decimal places the token uses.
 
 USDC conforms to this interface with the following Polygon Amoy details:
-- **Token address**: `0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582`  
-- **Decimals**: 6 (so 1 USDC equals 1,000,000 base units)  
+
+- **Token address**: `0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582`
+- **Decimals**: 6 (so 1 USDC equals 1,000,000 base units)
 
 ---
 
 ## POL vs. USDC at a Glance
 
-| Feature | POL | USDC |
-|---------|-----|------|
-| Asset type | Native protocol token | ERC20 smart contract |
-| Primary purpose | Pay gas fees | Represent and transfer dollar-pegged value |
-| Transfer call | `wallet.sendTransaction()` | `contract.transfer()` |
-| Decimal places | 18 | 6 |
-| Who pays gas | Sender (in POL) | Still the sender (in POL) |
+| Feature         | POL                        | USDC                                       |
+| --------------- | -------------------------- | ------------------------------------------ |
+| Asset type      | Native protocol token      | ERC20 smart contract                       |
+| Primary purpose | Pay gas fees               | Represent and transfer dollar-pegged value |
+| Transfer call   | `wallet.sendTransaction()` | `contract.transfer()`                      |
+| Decimal places  | 18                         | 6                                          |
+| Who pays gas    | Sender (in POL)            | Still the sender (in POL)                  |
 
 Understanding this table clarifies why sending USDC feels slightly different even though the wallet and provider setup stays the same.
 
@@ -51,8 +52,9 @@ Understanding this table clarifies why sending USDC feels slightly different eve
 ## Step 1: Load the Wallet and Set Up the Contract
 
 ```js
-import { ethers } from 'ethers'
 import dotenv from 'dotenv'
+import { ethers } from 'ethers'
+
 dotenv.config()
 
 const RPC_URL = 'https://rpc-amoy.polygon.technology'
@@ -122,9 +124,10 @@ console.log('🔗 View:', `https://amoy.polygonscan.com/tx/${tx.hash}`)
 ```
 
 Key differences from the POL workflow:
-- `usdc.transfer` submits a smart contract call.  
-- Gas is still charged in POL, not USDC.  
-- `parseUnits` uses the token's decimal count to avoid over- or under-paying.  
+
+- `usdc.transfer` submits a smart contract call.
+- Gas is still charged in POL, not USDC.
+- `parseUnits` uses the token's decimal count to avoid over- or under-paying.
 
 ---
 
@@ -146,17 +149,19 @@ console.log('\n⛽ Gas paid in POL:', ethers.utils.formatEther(polBalance))
 ```
 
 You should see:
-- Your USDC balance drop by the transfer amount.  
-- Your POL balance dip slightly from gas costs.  
-- The recipient's USDC balance increases accordingly.  
+
+- Your USDC balance drop by the transfer amount.
+- Your POL balance dip slightly from gas costs.
+- The recipient's USDC balance increases accordingly.
 
 ---
 
 ## Gas Costs for ERC20 Transfers
 
 ERC20 transfers invoke smart contract logic, so they use more gas than native transfers:
-- Native POL transfer: about 21,000 gas.  
-- ERC20 transfer: typically 50,000 to 65,000 gas.  
+
+- Native POL transfer: about 21,000 gas.
+- ERC20 transfer: typically 50,000 to 65,000 gas.
 
 Polygon's low fees mean the difference is small, but it is important to keep in mind on higher-cost networks.
 
@@ -164,9 +169,9 @@ Polygon's low fees mean the difference is small, but it is important to keep in 
 
 ## Practice Suggestions
 
-- Try sending different amounts (for example 0.1 USDC or 10 USDC) and confirm the decimals stay accurate.  
-- Transfer tokens to your own address to see how the transaction appears in the logs.  
-- Execute several transfers and compare gas usage across each receipt.  
+- Try sending different amounts (for example 0.1 USDC or 10 USDC) and confirm the decimals stay accurate.
+- Transfer tokens to your own address to see how the transaction appears in the logs.
+- Execute several transfers and compare gas usage across each receipt.
 
 ---
 
@@ -182,17 +187,18 @@ usdc.transfer(to, ethers.utils.parseEther('1'))
 usdc.transfer(to, ethers.utils.parseUnits('1', 6))
 ```
 
-❌ Forgetting to keep POL on hand for gas will cause the transaction to revert.  
+❌ Forgetting to keep POL on hand for gas will cause the transaction to revert.
 
-❌ Skipping the balance check may leave you guessing why a transfer failed.  
+❌ Skipping the balance check may leave you guessing why a transfer failed.
 
 ---
 
 ## Wrap-Up
 
 You now know how to:
-- ✅ Interact with ERC20 contracts through ethers.js.  
-- ✅ Send USDC on Polygon Amoy with precise decimal handling.  
-- ✅ Track both token balances and POL gas consumption.  
+
+- ✅ Interact with ERC20 contracts through ethers.js.
+- ✅ Send USDC on Polygon Amoy with precise decimal handling.
+- ✅ Track both token balances and POL gas consumption.
 
 Next, in Part 6, you will learn how to cover those gas costs on behalf of your users with gasless transactions.

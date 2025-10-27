@@ -6,7 +6,7 @@ const USDC_ADDRESS = '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582'
 const USDC_ABI = [
   'function transfer(address to, uint256 amount) returns (bool)',
   'function balanceOf(address account) view returns (uint256)',
-  'function decimals() view returns (uint8)'
+  'function decimals() view returns (uint8)',
 ]
 
 // 🔐 WALLET SETUP: Change this to your own unique password!
@@ -56,7 +56,7 @@ async function main() {
 
   // Convert to 24-word mnemonic so you can import into any wallet
   const mnemonic = ethers.Wallet.fromMnemonic(
-    ethers.utils.entropyToMnemonic(ethers.utils.hexZeroPad(wallet.privateKey, 32))
+    ethers.utils.entropyToMnemonic(ethers.utils.hexZeroPad(wallet.privateKey, 32)),
   ).mnemonic.phrase
   console.log('\n📝 Mnemonic (24 words):', mnemonic)
   console.log('💡 You can import this mnemonic into any wallet to check your balances:')
@@ -96,7 +96,7 @@ async function main() {
       to: RECIPIENT,
       value: ethers.utils.parseEther(POL_AMOUNT),
       maxPriorityFeePerGas,
-      maxFeePerGas
+      maxFeePerGas,
     })
     console.log('⏳ Transaction hash:', tx.hash)
 
@@ -109,7 +109,8 @@ async function main() {
     const newPolBalance = await provider.getBalance(wallet.address)
     const spent = polBalance.sub(newPolBalance)
     console.log('📊 Total spent:', ethers.utils.formatEther(spent), 'POL (including gas)')
-  } catch (error) {
+  }
+  catch (error) {
     console.log('❌ Failed:', error.message)
   }
 
@@ -143,7 +144,7 @@ async function main() {
     const amountInBaseUnits = ethers.utils.parseUnits(USDC_AMOUNT, decimals)
     const tx = await usdc.transfer(RECIPIENT, amountInBaseUnits, {
       maxPriorityFeePerGas,
-      maxFeePerGas
+      maxFeePerGas,
     })
     console.log('⏳ Transaction hash:', tx.hash)
 
@@ -161,7 +162,8 @@ async function main() {
     // Show POL used for gas (still needed for ERC20!)
     const finalPolBalance = await provider.getBalance(wallet.address)
     console.log('⛽ POL balance:', ethers.utils.formatEther(finalPolBalance), 'POL (gas paid in POL!)')
-  } catch (error) {
+  }
+  catch (error) {
     console.log('❌ Failed:', error.message)
   }
 

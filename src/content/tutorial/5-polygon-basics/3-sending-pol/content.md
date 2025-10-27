@@ -36,8 +36,9 @@ Keep a small buffer of POL in your wallet; even ERC20 transfers consume it for g
 Reuse the `.env`-backed wallet you created earlier so you are not juggling multiple keys.
 
 ```js
-import { ethers } from 'ethers'
 import dotenv from 'dotenv'
+import { ethers } from 'ethers'
+
 dotenv.config()
 
 const RPC_URL = 'https://rpc-amoy.polygon.technology'
@@ -92,9 +93,9 @@ console.log('├─ Hash:', tx.hash)
 console.log('└─ Waiting for confirmation...')
 ```
 
-- `sendTransaction` creates and submits the transaction.  
-- `parseEther` converts human-readable POL into wei, the smallest unit.  
-- The transaction hash is your receipt number; keep it handy.  
+- `sendTransaction` creates and submits the transaction.
+- `parseEther` converts human-readable POL into wei, the smallest unit.
+- The transaction hash is your receipt number; keep it handy.
 
 ---
 
@@ -138,15 +139,15 @@ The difference between the sent amount and the total spent reflects the gas fee.
 
 Every transfer has two cost components:
 
-1. **Amount transferred**: The value delivered to the recipient.  
-2. **Gas fee**: The computational cost paid to validators.  
+1. **Amount transferred**: The value delivered to the recipient.
+2. **Gas fee**: The computational cost paid to validators.
 
 ```
 Gas Fee = Gas Used × Gas Price
 ```
 
-- **Gas Used** represents the work done (a simple transfer is roughly 21,000 units).  
-- **Gas Price** fluctuates with network demand.  
+- **Gas Used** represents the work done (a simple transfer is roughly 21,000 units).
+- **Gas Price** fluctuates with network demand.
 
 On Polygon Amoy these fees are tiny, but cultivating the habit of checking them now will pay off on higher-cost networks.
 
@@ -154,18 +155,19 @@ On Polygon Amoy these fees are tiny, but cultivating the habit of checking them 
 
 ## Try-It Ideas
 
-- Send POL to yourself to see how the receipt looks when sender and recipient match.  
-- Experiment with smaller or larger amounts and observe how gas usage stays consistent.  
-- Submit multiple transactions in a row and compare their block numbers and confirmation times.  
+- Send POL to yourself to see how the receipt looks when sender and recipient match.
+- Experiment with smaller or larger amounts and observe how gas usage stays consistent.
+- Submit multiple transactions in a row and compare their block numbers and confirmation times.
 
 ---
 
 ## Wrap-Up
 
 You have now:
-- ✅ Broadcast your first Polygon transaction.  
-- ✅ Observed the full confirmation lifecycle.  
-- ✅ Calculated how gas fees affect balances.  
-- ✅ Gained confidence working with the POL native token.  
+
+- ✅ Broadcast your first Polygon transaction.
+- ✅ Observed the full confirmation lifecycle.
+- ✅ Calculated how gas fees affect balances.
+- ✅ Gained confidence working with the POL native token.
 
 Next, you will apply the same discipline to ERC20 tokens by sending USDC.

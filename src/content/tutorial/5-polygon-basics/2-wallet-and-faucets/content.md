@@ -20,6 +20,7 @@ Welcome to your first hands-on Polygon exercise. Before you can broadcast transa
 ## Learning Goals
 
 By the end of this lesson you will:
+
 - **Generate an Ethereum-compatible wallet** with ethers.js and understand the difference between its private key and public address.
 - **Connect the wallet to Polygon Amoy**, Polygon's public testnet.
 - **Collect free POL** to pay for gas in upcoming lessons.
@@ -31,6 +32,7 @@ By the end of this lesson you will:
 ## Why It Matters
 
 Wallets sit at the heart of every Web3 interaction. Whether you are experimenting with DeFi, NFTs, or the gasless payments you will build in Section 6, you must be able to:
+
 - Create and back up keypairs responsibly.
 - Talk to an RPC endpoint for the network you target.
 - Verify balances before submitting transactions.
@@ -44,10 +46,10 @@ Master these fundamentals now and everything that follows will feel natural.
 
 We will work on **Polygon Amoy**, a no-stakes environment that mirrors Polygon mainnet:
 
-- **Network**: Polygon Amoy Testnet  
-- **Native Token**: POL (covers gas fees)  
-- **RPC URL**: https://rpc-amoy.polygon.technology  
-- **Chain ID**: 80002  
+- **Network**: Polygon Amoy Testnet
+- **Native Token**: POL (covers gas fees)
+- **RPC URL**: https://rpc-amoy.polygon.technology
+- **Chain ID**: 80002
 
 Because tokens on Amoy have zero real-world value, you can experiment freely and rerun scripts as often as you like.
 
@@ -118,15 +120,17 @@ Within roughly 30 seconds the faucet should confirm the transfer. Run your scrip
 Later lessons rely on an ERC20 token, so grab some USDC while you are here. You can get USDC from either of these faucets:
 
 **Option 1: Polygon Faucet** (also gives POL)
+
 1. Visit **https://faucet.polygon.technology/**.
 2. Choose "Polygon Amoy" from the dropdown.
 3. Paste your wallet address and submit.
 
 **Option 2: Circle Faucet**
+
 1. Open **https://faucet.circle.com/**.
 2. Select "Polygon Amoy" as the network.
 3. Paste your wallet address.
-4. Complete the CAPTCHA and submit.  
+4. Complete the CAPTCHA and submit.
 
 To inspect your USDC balance you must query the token contract directly:
 
@@ -158,6 +162,7 @@ Load it in your script before creating the wallet instance:
 
 ```js
 import dotenv from 'dotenv'
+
 dotenv.config()
 
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY)
@@ -170,9 +175,10 @@ const wallet = new ethers.Wallet(process.env.PRIVATE_KEY)
 ## Wrap-Up
 
 You now have everything required for real Polygon workflows:
-- ✅ A reusable Ethereum-compatible wallet.  
-- ✅ POL to cover transaction fees on Polygon Amoy.  
-- ✅ USDC for ERC20 experiments.  
-- ✅ Environment variable management for safe credential storage.  
+
+- ✅ A reusable Ethereum-compatible wallet.
+- ✅ POL to cover transaction fees on Polygon Amoy.
+- ✅ USDC for ERC20 experiments.
+- ✅ Environment variable management for safe credential storage.
 
 In the next lesson you will send your first on-chain POL transfer and watch it confirm in real time.

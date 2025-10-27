@@ -41,7 +41,7 @@ async function main() {
     to: RECIPIENT,
     value: ethers.utils.parseEther(AMOUNT_POL),
     maxPriorityFeePerGas,
-    maxFeePerGas
+    maxFeePerGas,
   })
   console.log('\\n⏳ Transaction Sent!')
   console.log('├─ Hash:', tx.hash)

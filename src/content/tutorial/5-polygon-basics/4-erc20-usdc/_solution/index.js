@@ -45,7 +45,7 @@ async function main() {
   const amountInBaseUnits = ethers.utils.parseUnits(AMOUNT, decimals)
   const tx = await usdc.transfer(RECIPIENT, amountInBaseUnits, {
     maxPriorityFeePerGas,
-    maxFeePerGas
+    maxFeePerGas,
   })
   console.log('\\n⏳ Transaction sent!')
   console.log('├─ Hash:', tx.hash)
