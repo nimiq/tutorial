@@ -20,11 +20,13 @@ You just measured the cost of a standard USDT transfer. Now we will send the sam
 ## OpenGSN at a Glance
 
 The gasless flow has three stages:
+
 1. You sign a meta-transaction off-chain. No POL is spent yet.
 2. A relay server broadcasts that request on-chain and pays the POL gas.
 3. Your transfer contract reimburses the relay in USDT (amount plus fee).
 
 Key roles involved:
+
 - **Sponsor (you)** signs messages and funds relay fees in USDT.
 - **Relay servers** front the POL gas and expect reimbursement.
 - **Transfer contract** executes the token move and fee payment.
@@ -35,6 +37,7 @@ Key roles involved:
 ## Guardrails for This Lesson
 
 To keep the walkthrough approachable we will:
+
 - Hardcode a known relay URL instead of discovering one dynamically.
 - Use a static relay fee (0.1 USDT) and a fixed gas price.
 - Work entirely on Polygon mainnet because OpenGSN is not deployed on Amoy.
@@ -62,8 +65,9 @@ RELAY_URL=https://polygon-mainnet-relay.nimiq-network.com
 ## Step 2: Connect and Define Contract Addresses
 
 ```js
-import { ethers } from 'ethers'
 import dotenv from 'dotenv'
+import { ethers } from 'ethers'
+
 dotenv.config()
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.POLYGON_RPC_URL)
@@ -188,7 +192,7 @@ const relayRequest = {
     baseRelayFee: '0',
     relayWorker: 'will_be_filled_by_relay',
     paymaster: TRANSFER_CONTRACT_ADDRESS,
-    forwarder: '0x...',  //  Trusted Forwarder address
+    forwarder: '0x...', //  Trusted Forwarder address
     clientId: '1'
   }
 }
@@ -230,19 +234,19 @@ console.log('🔗 View:', `https://polygonscan.com/tx/${txHash}`)
 
 ## Recap: What Just Happened
 
-1. You signed a USDT meta-approval without spending gas.  
-2. You signed a meta-transaction request for the relay.  
-3. The relay paid POL to submit the transaction on-chain.  
-4. The receiver received USDT minus the 0.1 USDT relay fee.  
-5. Your wallet retained its POL balance.  
+1. You signed a USDT meta-approval without spending gas.
+2. You signed a meta-transaction request for the relay.
+3. The relay paid POL to submit the transaction on-chain.
+4. The receiver received USDT minus the 0.1 USDT relay fee.
+5. Your wallet retained its POL balance.
 
 ---
 
 ## Limitations to Keep in Mind
 
-- ❌ Hardcoded relay URL (no fallback if it goes offline).  
-- ❌ Static fee and gas price (no adaptation to network conditions).  
-- ❌ No validation of relay health beyond a single request.  
+- ❌ Hardcoded relay URL (no fallback if it goes offline).
+- ❌ Static fee and gas price (no adaptation to network conditions).
+- ❌ No validation of relay health beyond a single request.
 
 The next lessons address each of these gaps.
 
@@ -251,9 +255,10 @@ The next lessons address each of these gaps.
 ## Wrap-Up
 
 You have now:
-- ✅ Sent USDT without paying POL yourself.  
-- ✅ Practiced constructing and signing OpenGSN meta-transactions.  
-- ✅ Understood the flow between approval, relay request, and paymaster contract.  
-- ✅ Prepared the foundation for relay discovery and fee optimization.  
+
+- ✅ Sent USDT without paying POL yourself.
+- ✅ Practiced constructing and signing OpenGSN meta-transactions.
+- ✅ Understood the flow between approval, relay request, and paymaster contract.
+- ✅ Prepared the foundation for relay discovery and fee optimization.
 
 Continue to **Lesson 4** to discover relays dynamically via RelayHub events.

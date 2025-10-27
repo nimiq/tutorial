@@ -19,11 +19,11 @@ Hardcoding relay fees works for prototypes, but production systems need to adapt
 
 ## Learning Goals
 
-- Fetch the current network gas price and respect the relay's minimum.  
-- Apply context-aware buffers that keep transactions reliable without overspending.  
-- Combine relay percentage fees and base fees into a single POL amount.  
-- Convert that POL cost into USDT using conservative pricing assumptions.  
-- Compare multiple relays and pick the most cost-effective option.  
+- Fetch the current network gas price and respect the relay's minimum.
+- Apply context-aware buffers that keep transactions reliable without overspending.
+- Combine relay percentage fees and base fees into a single POL amount.
+- Convert that POL cost into USDT using conservative pricing assumptions.
+- Compare multiple relays and pick the most cost-effective option.
 
 ---
 
@@ -35,11 +35,12 @@ usdtFee = (chainTokenFee / usdtPriceInPOL) * safetyBuffer
 ```
 
 Where:
-- `gasPrice` is the higher of the network price and the relay's minimum, optionally buffered.  
-- `gasLimit` depends on the method you are executing.  
-- `pctRelayFee` and `baseRelayFee` come from the relay registration event.  
-- `safetyBuffer` adds wiggle room (typically 10-50%).  
-- `usdtPriceInPOL` converts the POL cost into USDT.  
+
+- `gasPrice` is the higher of the network price and the relay's minimum, optionally buffered.
+- `gasLimit` depends on the method you are executing.
+- `pctRelayFee` and `baseRelayFee` come from the relay registration event.
+- `safetyBuffer` adds wiggle room (typically 10-50%).
+- `usdtPriceInPOL` converts the POL cost into USDT.
 
 ---
 
@@ -71,9 +72,11 @@ const ENV_MAIN = true // Set based on environment
 let bufferPercentage
 if (method === 'redeemWithSecretInData') {
   bufferPercentage = 150 // 50% buffer (swap fee volatility)
-} else if (ENV_MAIN) {
+}
+else if (ENV_MAIN) {
   bufferPercentage = 110 // 10% buffer (mainnet)
-} else {
+}
+else {
   bufferPercentage = 125 // 25% buffer (testnet, more volatile)
 }
 
@@ -122,7 +125,7 @@ This yields the amount of POL the relay expects to receive after covering gas.
 const POL_PRICE_USD = 0.50 // $0.50 per POL (check current market)
 const USDT_DECIMALS = 6
 
-const feeInUSD = parseFloat(ethers.utils.formatEther(totalChainTokenFee)) * POL_PRICE_USD
+const feeInUSD = Number.parseFloat(ethers.utils.formatEther(totalChainTokenFee)) * POL_PRICE_USD
 const feeInUSDT = ethers.utils.parseUnits((feeInUSD * 1.10).toFixed(6), USDT_DECIMALS) // 10% buffer
 
 console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, USDT_DECIMALS))
@@ -140,7 +143,7 @@ Start with a conservative fixed price, then graduate to on-chain oracles once yo
 
 ```js
 const MAX_PCT_RELAY_FEE = 70 // Never accept >70%
-const MAX_BASE_RELAY_FEE = 0  // Never accept base fee
+const MAX_BASE_RELAY_FEE = 0 // Never accept base fee
 
 if (pctRelayFee > MAX_PCT_RELAY_FEE) {
   throw new Error(`Relay fee too high: ${pctRelayFee}%`)
@@ -169,7 +172,8 @@ async function getBestRelay(relays, gasLimit, method) {
         lowestFee = fee
         bestRelay = relay
       }
-    } catch (error) {
+    }
+    catch (error) {
       continue // Skip invalid relays
     }
   }
@@ -186,11 +190,11 @@ When you have multiple candidates, this loop compares their fees and picks the c
 
 These extras come straight from the Nimiq wallet codebase:
 
-1. **Timeout relay requests after two seconds** to avoid hanging the UI.  
-2. **Cap the number of relays you test** (for example, at 10) to keep discovery fast.  
-3. **Require worker balances at least twice the expected gas cost** for safety.  
-4. **Skip inactive relays** unless they belong to trusted providers such as Fastspot.  
-5. **Use generators or iterators** so you can stop searching the moment a good relay appears.  
+1. **Timeout relay requests after two seconds** to avoid hanging the UI.
+2. **Cap the number of relays you test** (for example, at 10) to keep discovery fast.
+3. **Require worker balances at least twice the expected gas cost** for safety.
+4. **Skip inactive relays** unless they belong to trusted providers such as Fastspot.
+5. **Use generators or iterators** so you can stop searching the moment a good relay appears.
 
 ---
 
@@ -224,9 +228,10 @@ Reuse this helper whenever you prepare a meta-transaction so each request reflec
 ## Wrap-Up
 
 You now have a production-grade fee engine that:
-- ✅ Tracks live gas prices and relay minimums.  
-- ✅ Applies thoughtful buffers to avoid underpayment.  
-- ✅ Converts POL costs into USDT predictably.  
-- ✅ Compares relays and selects the most cost-effective option.  
+
+- ✅ Tracks live gas prices and relay minimums.
+- ✅ Applies thoughtful buffers to avoid underpayment.
+- ✅ Converts POL costs into USDT predictably.
+- ✅ Compares relays and selects the most cost-effective option.
 
 At this point your gasless transaction pipeline matches the approach we ship in the Nimiq wallet - ready for real users. From here you can integrate oracles, caching layers, and monitoring to keep everything running smoothly.

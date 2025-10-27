@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
-import { getHttpClient } from '@opengsn/common/dist/HttpClient.js';
-import { TypedRequestData } from '@opengsn/common/dist/EIP712/TypedRequestData.js';
+import { TypedRequestData } from '@opengsn/common/dist/EIP712/TypedRequestData.js'
+import { getHttpClient } from '@opengsn/common/dist/HttpClient.js'
+import { ethers } from 'ethers'
 
 // 🔐 Paste your private key from Lesson 1 here!
-const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1';
+const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1'
 
 // TODO: Implement relay discovery
 // TODO: Calculate optimized fees for each relay:
@@ -15,7 +15,7 @@ const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1';
 // TODO: Use optimized fee for gasless transfer
 
 async function main() {
-  console.log('TODO: Implement optimized fee calculation');
+  console.log('TODO: Implement optimized fee calculation')
 }
 
-main().catch(console.error);
+main().catch(console.error)

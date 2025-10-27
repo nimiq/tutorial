@@ -20,6 +20,7 @@ Hardcoding a relay URL works for demos, but production code needs to discover he
 ## Objectives
 
 By the end of this lesson you will:
+
 - Query on-chain events with ethers.js.
 - Check each relay's advertised metadata and on-chain balances.
 - Filter out relays that are offline, outdated, or underfunded.
@@ -64,15 +65,18 @@ async function validateRelay(relayUrl) {
     const { relayWorkerAddress, ready, version, networkId, minGasPrice } = response.data
 
     // Check version
-    if (!version.startsWith('2.')) return null
+    if (!version.startsWith('2.'))
+      return null
 
     // Check network
-    if (networkId !== 137) return null
+    if (networkId !== 137)
+      return null
 
     // Check worker balance
     const workerBalance = await provider.getBalance(relayWorkerAddress)
     const requiredBalance = ethers.utils.parseEther('0.01') // Minimum threshold
-    if (workerBalance.lt(requiredBalance)) return null
+    if (workerBalance.lt(requiredBalance))
+      return null
 
     // Check recent activity (skip for Fastspot relays)
     if (!relayUrl.includes('fastspot.io')) {
@@ -81,13 +85,15 @@ async function validateRelay(relayUrl) {
     }
 
     return { url: relayUrl, worker: relayWorkerAddress, minGasPrice, ...response.data }
-  } catch (error) {
+  }
+  catch (error) {
     return null // Relay offline or invalid
   }
 }
 ```
 
 Checks to keep in mind:
+
 - **Version** must start with 2.x to match the OpenGSN v2 protocol.
 - **Network ID** should be 137 for Polygon mainnet.
 - **Worker balance** needs enough POL to front your transaction (the example uses 0.01 POL as a floor).
@@ -116,19 +122,20 @@ This simple loop already improves reliability dramatically compared to a hardcod
 
 ## Why This Beats a Static Relay
 
-- ✅ Automatically skips relays that are offline or misconfigured.  
-- ✅ Picks up newly registered relays without code changes.  
-- ✅ Gives you hooks to rank relays by price, latency, or trust level.  
-- ❌ Still relies on static fee estimates (we will tackle that in the next lesson).  
+- ✅ Automatically skips relays that are offline or misconfigured.
+- ✅ Picks up newly registered relays without code changes.
+- ✅ Gives you hooks to rank relays by price, latency, or trust level.
+- ❌ Still relies on static fee estimates (we will tackle that in the next lesson).
 
 ---
 
 ## Wrap-Up
 
 You now have a discovery pipeline that:
-- ✅ Queries RelayHub for fresh relay registrations.  
-- ✅ Validates each relay's network, version, balance, and responsiveness.  
-- ✅ Falls back gracefully when a relay fails health checks.  
-- ✅ Removes the last hardcoded relay URL from your workflow.  
+
+- ✅ Queries RelayHub for fresh relay registrations.
+- ✅ Validates each relay's network, version, balance, and responsiveness.
+- ✅ Falls back gracefully when a relay fails health checks.
+- ✅ Removes the last hardcoded relay URL from your workflow.
 
 Next up: **Lesson 5** where you replace static fees with a dynamic, production-ready calculation.

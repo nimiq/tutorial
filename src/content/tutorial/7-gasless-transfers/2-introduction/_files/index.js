@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
-import { POLYGON_RPC_URL, TRANSFER_AMOUNT_USDT } from './lib/config.js'
 import { checkBalances } from './lib/balances.js'
+import { POLYGON_RPC_URL, TRANSFER_AMOUNT_USDT } from './lib/config.js'
 
 // 🔐 WALLET SETUP: Paste your private key from Lesson 1 here!
 // ⚠️ This wallet needs USDT on Polygon MAINNET (not testnet)
@@ -80,7 +80,7 @@ async function main() {
 
   // Convert to USDT (simplified - in production use oracle)
   const POL_PRICE = 0.50 // $0.50 per POL (example)
-  const feeInUSD = parseFloat(ethers.utils.formatEther(costWithPct)) * POL_PRICE
+  const feeInUSD = Number.parseFloat(ethers.utils.formatEther(costWithPct)) * POL_PRICE
   const feeInUSDT = (feeInUSD * 1.10).toFixed(6) // 10% buffer
   console.log('   • Fee in USDT:', feeInUSDT, 'USDT')
 
@@ -115,6 +115,6 @@ async function main() {
   console.log('\n🎉 Each lesson builds on the previous one!\n')
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('\n❌ Error:', error.message)
 })

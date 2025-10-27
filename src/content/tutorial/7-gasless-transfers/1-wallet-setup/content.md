@@ -48,11 +48,13 @@ console.log('Mnemonic:', wallet.mnemonic.phrase)
 ⚠️ **CRITICAL**: Anyone with your private key or mnemonic can spend your funds.
 
 **Do:**
+
 - Store both in a password manager.
 - Write the mnemonic on paper and keep it safe.
 - Never share them with anyone.
 
 **Don't:**
+
 - Screenshot or email your credentials.
 - Store them in plain text on your computer.
 - Reuse this wallet for large amounts in production.
@@ -79,13 +81,17 @@ The Nimiq Wallet supports Polygon and makes managing tokens easier than the comm
 You need two types of tokens:
 
 ### USDC (for transfers)
+
 Visit **https://faucet.circle.com/** to get testnet USDC that works on mainnet. You will need 2-5 USDC to complete the gasless lessons.
 
 ### POL (for gas in Lesson 2)
+
 Visit **https://faucet.polygon.technology/** to get a small amount of POL. You only need ~0.1 POL for the baseline gasful transaction in the next lesson.
 
 ### USDT (no faucet available)
+
 There is no public faucet for USDT on Polygon mainnet. If you want to follow along with USDT examples instead of USDC, you will need to:
+
 - Purchase USDT on an exchange and withdraw to Polygon
 - Swap USDC for USDT using a DEX like Uniswap
 - Bridge USDT from Ethereum mainnet
@@ -109,6 +115,7 @@ Replace that placeholder with your actual private key. Never commit files with y
 ## Verify Your Setup
 
 Before moving forward, confirm:
+
 - ✅ Private key and mnemonic are stored securely
 - ✅ Wallet address is funded with USDC and POL
 - ✅ You understand the security risks
