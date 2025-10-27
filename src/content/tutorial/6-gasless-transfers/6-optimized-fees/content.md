@@ -25,11 +25,13 @@ Hardcoding relay fees works for prototypes, but production systems need to adapt
 - Convert that POL cost into USDT using conservative pricing assumptions.
 - Compare multiple relays and pick the most cost-effective option.
 
+The maths mirrors the `calculateGaslessFee` helper inside `@cashlink/currency/src/gasless/fees.ts`. Cross-reference it with the [OpenGSN fee model documentation](https://docs.opengsn.org/relay/relay-lifecycle.html#fees) and the [Nimiq wallet engineering notes](https://developers.nimiq.com/) if you want to see the production lineage.
+
 ---
 
 ## The Core Formula
 
-```
+```text title="Fee formula"
 chainTokenFee = (gasPrice * gasLimit * (1 + pctRelayFee/100)) + baseRelayFee
 usdtFee = (chainTokenFee / usdtPriceInPOL) * safetyBuffer
 ```
@@ -46,7 +48,7 @@ Where:
 
 ## Step 1: Read the Network Gas Price
 
-```js
+```js title="gas-price.ts" showLineNumbers mark=1-8
 const networkGasPrice = await provider.getGasPrice()
 console.log('Network gas price:', ethers.utils.formatUnits(networkGasPrice, 'gwei'), 'gwei')
 
@@ -60,13 +62,15 @@ const gasPrice = networkGasPrice.gt(minGasPrice) ? networkGasPrice : minGasPrice
 
 Using the maximum of the two ensures you never pay less than the relay requires, while still benefiting from low network prices when possible.
 
+Why the **min gas price** matters: each relay advertises a floor in its `/getaddr` response. If you submit a transaction below that price the worker will reject it. The [Polygon gas market guide](https://docs.polygon.technology/docs/develop/network-details/gas/) explains why congestion spikes make this floor fluctuate.
+
 ---
 
 ## Step 2: Apply a Safety Buffer
 
 Different workflows tolerate risk differently. Adjust the buffer based on the method or environment you are in.
 
-```js
+```js title="buffer.ts" showLineNumbers mark=1-13
 const ENV_MAIN = true // Set based on environment
 
 let bufferPercentage
@@ -88,7 +92,7 @@ console.log('Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'g
 
 ## Step 3: Combine Gas Costs and Relay Fees
 
-```js
+```js title="fee-components.ts" showLineNumbers mark=1-18
 // Method-specific gas limits (from wallet implementation)
 const GAS_LIMITS = {
   transfer: 65000,
@@ -120,7 +124,7 @@ This yields the amount of POL the relay expects to receive after covering gas.
 
 ## Step 4: Convert POL Cost to USDT
 
-```js
+```js title="fee-to-usdt.ts" showLineNumbers mark=1-11
 // Option 1: Hardcoded conservative rate
 const POL_PRICE_USD = 0.50 // $0.50 per POL (check current market)
 const USDT_DECIMALS = 6
@@ -137,11 +141,13 @@ console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, USDT_DECIMALS))
 
 Start with a conservative fixed price, then graduate to on-chain oracles once you are ready.
 
+In production we look up the POL/USDT price using Uniswap's Quoter contract and then apply an extra 10-15% margin as insurance. That keeps the relay from being underpaid even if POL appreciates between fee estimation and transaction confirmation.
+
 ---
 
 ## Step 5: Reject Expensive Relays
 
-```js
+```js title="guardrails.ts" showLineNumbers mark=1-9
 const MAX_PCT_RELAY_FEE = 70 // Never accept >70%
 const MAX_BASE_RELAY_FEE = 0 // Never accept base fee
 
@@ -160,7 +166,7 @@ These guardrails prevent accidental overpayment when a relay is misconfigured or
 
 ## Step 6: Choose the Best Relay
 
-```js
+```js title="choose-relay.ts" showLineNumbers mark=1-17
 async function getBestRelay(relays, gasLimit, method) {
   let bestRelay = null
   let lowestFee = ethers.constants.MaxUint256
@@ -184,6 +190,8 @@ async function getBestRelay(relays, gasLimit, method) {
 
 When you have multiple candidates, this loop compares their fees and picks the cheapest valid option.
 
+Want more than “cheapest wins”? It is common to score relays on latency, historical success rate, or geographic proximity. The [OpenGSN Relay Operator checklist](https://docs.opengsn.org/relay/relay-operator.html) lists the metrics most teams monitor.
+
 ---
 
 ## Production Considerations
@@ -200,7 +208,7 @@ These extras come straight from the Nimiq wallet codebase:
 
 ## Putting It All Together
 
-```js
+```js title="calculate-optimal-fee.ts" showLineNumbers mark=1-18
 async function calculateOptimalFee(method, relay) {
   // 1. Get gas prices
   const networkGasPrice = await provider.getGasPrice()
@@ -235,3 +243,4 @@ You now have a production-grade fee engine that:
 - ✅ Compares relays and selects the most cost-effective option.
 
 At this point your gasless transaction pipeline matches the approach we ship in the Nimiq wallet - ready for real users. From here you can integrate oracles, caching layers, and monitoring to keep everything running smoothly.
+Continue with the [Nimiq Developer Center](https://developers.nimiq.com/) recipes to embed the finished fee engine in your dApp UI.

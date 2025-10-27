@@ -32,6 +32,13 @@ Key roles involved:
 - **Transfer contract** executes the token move and fee payment.
 - **RelayHub** validates and routes meta-transactions across the network.
 
+If you have never met OpenGSN before, keep this component cheat sheet handy:
+
+- **Forwarder:** verifies the meta-transaction signature and keeps per-sender nonces so relays cannot replay old requests. The Nimiq transfer contract bundles a forwarder implementation; see the reference in the [Nimiq Developer Center](https://developers.nimiq.com/).
+- **Paymaster:** refunds the relay in tokens such as USDT or USDC. For this tutorial the same transfer contract doubles as paymaster.
+- **RelayHub:** the canonical on-chain registry of relays. Its API is documented in the [OpenGSN Docs](https://docs.opengsn.org/).
+- **Relay server:** an off-chain service that watches the hub and exposes `/getaddr` plus `/relay` endpoints. Polygon’s networking requirements for relays are outlined in the [Polygon developer documentation](https://docs.polygon.technology/).
+
 ---
 
 ## Guardrails for This Lesson
@@ -50,7 +57,7 @@ Later lessons will replace each shortcut with production logic.
 
 Create or update your `.env` file with the following values:
 
-```bash
+```bash title=".env"
 POLYGON_RPC_URL=https://polygon-rpc.com
 SPONSOR_PRIVATE_KEY=your_mainnet_key_with_USDT
 RECEIVER_ADDRESS=0x...
@@ -64,7 +71,7 @@ RELAY_URL=https://polygon-mainnet-relay.nimiq-network.com
 
 ## Step 2: Connect and Define Contract Addresses
 
-```js
+```js title="index.js" showLineNumbers mark=6-13
 import dotenv from 'dotenv'
 import { ethers } from 'ethers'
 
@@ -82,14 +89,17 @@ console.log('🔑 Sponsor:', wallet.address)
 ```
 
 The sponsor wallet is the account that will sign messages and reimburse the relay.
+The concrete contract addresses are published in `@cashlink/currency`’s constants module and mirrored in the [Nimiq wallet gasless guide](https://developers.nimiq.com/). Always verify them against the latest deployment notes before running on mainnet.
 
 ---
 
 ## Step 3: Retrieve the USDT Nonce and Approval Amount
 
-USDT uses its own permit-style approval. Fetch the current nonce and compute how much the transfer contract is allowed to spend (transfer amount + relay fee).
+USDT on Polygon does _not_ implement the standard ERC‑2612 permit. Instead it exposes `executeMetaTransaction`, which expects you to sign the encoded `approve` call. The `nonces` counter you query below is USDT’s own meta-transaction nonce (documented in [Tether’s contract implementation](https://docs.opengsn.org/contracts/erc-2771.html)), so we can safely reuse it when we sign the approval.
 
-```js
+Fetch the current nonce and compute how much the transfer contract is allowed to spend (transfer amount + relay fee).
+
+```js title="index.js" showLineNumbers mark=3-9
 const USDT_ABI = ['function nonces(address owner) view returns (uint256)']
 const usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, provider)
 
@@ -106,9 +116,9 @@ const approvalAmount = amountToSend.add(staticFee)
 
 ## Step 4: Sign the USDT Meta-Approval
 
-USDT on Polygon uses `executeMetaTransaction` for gasless approvals. Build the EIP-712 MetaTransaction payload and sign it.
+USDT on Polygon uses `executeMetaTransaction` for gasless approvals. Build the EIP‑712 MetaTransaction payload and sign it. Notice the domain uses the `salt` field instead of `chainId`; that is specific to the USDT contract. Compare this to the generic permit flow covered in [OpenGSN’s meta-transaction docs](https://docs.opengsn.org/gsn-provider/metatx.html) to see the differences.
 
-```js
+```js title="index.js" showLineNumbers mark=9-19
 // First, encode the approve function call
 const approveFunctionSignature = usdt.interface.encodeFunctionData('approve', [
   TRANSFER_CONTRACT_ADDRESS,
@@ -151,7 +161,7 @@ This signature allows the relay to execute the `approve` call on your behalf via
 
 Prepare the calldata the relay will submit on your behalf.
 
-```js
+```js title="index.js" showLineNumbers mark=6-14
 const TRANSFER_ABI = ['function transferWithApproval(address token, uint256 amount, address to, uint256 fee, uint256 approval, bytes32 r, bytes32 s, uint8 v)']
 const transferContract = new ethers.Contract(TRANSFER_CONTRACT_ADDRESS, TRANSFER_ABI, wallet)
 
@@ -173,9 +183,9 @@ console.log('📦 Calldata encoded')
 
 ## Step 6: Build and Sign the Relay Request
 
-The relay expects a second EIP-712 signature covering the meta-transaction wrapper. Gather the contract nonce and sign the payload.
+The relay expects a second EIP‑712 signature covering the meta-transaction wrapper. This time the domain is the **forwarder** (embedded inside the transfer contract). Gather the contract nonce and sign the payload.
 
-```js
+```js title="index.js" showLineNumbers mark=6-21
 const transferNonce = await transferContract.getNonce(wallet.address)
 
 const relayRequest = {
@@ -186,22 +196,23 @@ const relayRequest = {
     gas: '350000',
     nonce: transferNonce.toString(),
     data: transferCalldata,
-    validUntilTime: (Math.floor(Date.now() / 1000) + 7200).toString()
+    validUntil: (Math.floor(Date.now() / 1000) + 7200).toString()
   },
   relayData: {
     gasPrice: '100000000000', // 100 gwei (static!)
     pctRelayFee: '0',
     baseRelayFee: '0',
-    relayWorker: 'will_be_filled_by_relay',
+    relayWorker: '0x0000000000000000000000000000000000000000', // Will be filled by relay
     paymaster: TRANSFER_CONTRACT_ADDRESS,
-    forwarder: '0x...', //  Trusted Forwarder address
+    forwarder: TRANSFER_CONTRACT_ADDRESS,
+    paymasterData: '0x',
     clientId: '1'
   }
 }
 
 // Sign it
-const relayDomain = { name: 'GSN Relayed Transaction', version: '2', chainId: 137, verifyingContract: '0x...' }
-const relayTypes = { /* RelayRequest types */ }
+const relayDomain = { name: 'GSN Relayed Transaction', version: '2', chainId: 137, verifyingContract: TRANSFER_CONTRACT_ADDRESS }
+const relayTypes = { /* RelayRequest types – see docs.opengsn.org for the full schema */ }
 const relaySignature = await wallet._signTypedData(relayDomain, relayTypes, relayRequest)
 
 console.log('✍️  Relay request signed')
@@ -211,23 +222,28 @@ console.log('✍️  Relay request signed')
 
 ## Step 7: Submit the Meta-Transaction
 
-Use the OpenGSN HTTP client to send the request to your chosen relay.
+Use the OpenGSN HTTP client to send the request to your chosen relay. The worker nonce check prevents you from handing the relay a `relayMaxNonce` that is already stale—if the worker broadcasts several transactions in quick succession, your request will still slide in. Likewise, `validUntil` in the previous step protects the relay from signing requests that could be replayed months later.
 
-```js
+```js title="index.js" showLineNumbers mark=1-18
 import { HttpClient, HttpWrapper } from '@opengsn/common'
 
+const relayNonce = await provider.getTransactionCount(relayInfo.relayWorkerAddress)
+
 const httpClient = new HttpClient(new HttpWrapper(), console)
-const relayResponse = await httpClient.relayTransaction(process.env.RELAY_URL, {
+const relayResponse = await httpClient.relayTransaction(RELAY_URL, {
   relayRequest,
   metadata: {
     signature: relaySignature,
     approvalData: '0x',
     relayHubAddress: RELAY_HUB_ADDRESS,
-    relayMaxNonce: 999999
+    relayMaxNonce: relayNonce + 3
   }
 })
 
-const txHash = typeof relayResponse === 'string' ? relayResponse : relayResponse.signedTx
+const txHash = typeof relayResponse === 'string'
+  ? relayResponse
+  : relayResponse.signedTx || relayResponse.txHash
+
 console.log('\n✅ Gasless transaction sent!')
 console.log('🔗 View:', `https://polygonscan.com/tx/${txHash}`)
 ```
@@ -263,4 +279,4 @@ You have now:
 - ✅ Understood the flow between approval, relay request, and paymaster contract.
 - ✅ Prepared the foundation for relay discovery and fee optimization.
 
-Continue to **Lesson 4** to discover relays dynamically via RelayHub events.
+Next up, **Lesson 5** walks through discovering relays dynamically from the RelayHub and filtering them with health checks informed by the [OpenGSN relay operator guide](https://docs.opengsn.org/relay/). That will let you replace today’s hardcoded URL with resilient discovery logic.

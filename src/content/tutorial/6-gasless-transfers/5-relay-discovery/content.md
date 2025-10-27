@@ -26,18 +26,24 @@ By the end of this lesson you will:
 - Filter out relays that are offline, outdated, or underfunded.
 - Produce a resilient fallback chain when the preferred relay fails.
 
+Before you start, skim the reference material so the field names feel familiar:
+
+- [RelayHub events in the OpenGSN docs](https://docs.opengsn.org/contracts/relay-hub.html).
+- Nimiq’s [gasless transfer architecture notes](https://developers.nimiq.com/).
+- Polygon’s [gasless transaction guidelines](https://docs.polygon.technology/).
+
 ---
 
 ## Step 1: Pull Recent Relay Registrations
 
 RelayHub emits a `RelayServerRegistered` event whenever a relay announces itself. Scan the recent blocks to collect candidates.
 
-```js
+```js title="discover-relays.ts" showLineNumbers mark=6-24
 const RELAY_HUB_ABI = ['event RelayServerRegistered(address indexed relayManager, uint256 baseRelayFee, uint256 pctRelayFee, string relayUrl)']
 const relayHub = new ethers.Contract(RELAY_HUB_ADDRESS, RELAY_HUB_ABI, provider)
 
 const currentBlock = await provider.getBlockNumber()
-const LOOKBACK_BLOCKS = 144000 // ~60 hours on Polygon
+const LOOKBACK_BLOCKS = 14400 // ~10 hours on Polygon
 
 const events = await relayHub.queryFilter(
   relayHub.filters.RelayServerRegistered(),
@@ -45,10 +51,25 @@ const events = await relayHub.queryFilter(
   currentBlock
 )
 
-console.log(`Found ${events.length} relay registrations`)
+const seen = new Map()
+
+for (const event of events) {
+  const { relayManager, baseRelayFee, pctRelayFee, relayUrl } = event.args
+  if (!seen.has(relayUrl)) {
+    seen.set(relayUrl, {
+      url: relayUrl,
+      relayManager,
+      baseRelayFee,
+      pctRelayFee,
+    })
+  }
+}
+
+const candidates = Array.from(seen.values())
+console.log(`Found ${candidates.length} unique relay URLs`)
 ```
 
-Looking back roughly 60 hours balances freshness with performance. Adjust the window if you need more or fewer candidates.
+Looking back roughly 10 hours balances freshness with performance. Adjust the window if you need more or fewer candidates.
 
 ---
 
@@ -56,35 +77,44 @@ Looking back roughly 60 hours balances freshness with performance. Adjust the wi
 
 For every registration, call the `/getaddr` endpoint and run a series of health checks before trusting it.
 
-```js
-import axios from 'axios'
-
-async function validateRelay(relayUrl) {
+```js title="validate-relay.ts" showLineNumbers mark=6-29
+async function validateRelay(relay, provider) {
   try {
-    const response = await axios.get(`${relayUrl}/getaddr`, { timeout: 10000 })
-    const { relayWorkerAddress, ready, version, networkId, minGasPrice } = response.data
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
 
-    // Check version
-    if (!version.startsWith('2.'))
+    const response = await fetch(`${relay.url}/getaddr`, { signal: controller.signal })
+
+    clearTimeout(timeout)
+
+    if (!response.ok)
       return null
 
-    // Check network
-    if (networkId !== 137)
+    const relayInfo = await response.json()
+
+    if (!relayInfo.version?.startsWith('2.'))
+      return null
+    if (relayInfo.networkId !== '137' && relayInfo.chainId !== '137')
+      return null
+    if (!relayInfo.ready)
       return null
 
-    // Check worker balance
-    const workerBalance = await provider.getBalance(relayWorkerAddress)
-    const requiredBalance = ethers.utils.parseEther('0.01') // Minimum threshold
-    if (workerBalance.lt(requiredBalance))
+    const workerBalance = await provider.getBalance(relayInfo.relayWorkerAddress)
+    if (workerBalance.lt(ethers.utils.parseEther('0.01')))
       return null
 
-    // Check recent activity (skip for Fastspot relays)
-    if (!relayUrl.includes('fastspot.io')) {
-      const recentTx = await provider.getTransactionCount(relayWorkerAddress)
-      // ... validate transaction recency
+    const pctFee = Number.parseInt(relay.pctRelayFee)
+    const baseFee = ethers.BigNumber.from(relay.baseRelayFee)
+
+    if (pctFee > 70 || baseFee.gt(0))
+      return null
+
+    return {
+      ...relay,
+      relayWorkerAddress: relayInfo.relayWorkerAddress,
+      minGasPrice: relayInfo.minGasPrice,
+      version: relayInfo.version,
     }
-
-    return { url: relayUrl, worker: relayWorkerAddress, minGasPrice, ...response.data }
   }
   catch (error) {
     return null // Relay offline or invalid
@@ -92,12 +122,15 @@ async function validateRelay(relayUrl) {
 }
 ```
 
+`AbortController` gives us a portable timeout without extra dependencies, which keeps the sample compatible with both Node.js scripts and browser bundlers.
+
 Checks to keep in mind:
 
 - **Version** must start with 2.x to match the OpenGSN v2 protocol.
 - **Network ID** should be 137 for Polygon mainnet.
 - **Worker balance** needs enough POL to front your transaction (the example uses 0.01 POL as a floor).
-- **Recent activity** ensures the worker is still alive and signing transactions.
+- **Readiness flag** confirms the relay advertises itself as accepting requests.
+- **Fee caps** ensure you never accept a base fee or a percentage beyond your policy.
 
 ---
 
@@ -105,15 +138,21 @@ Checks to keep in mind:
 
 Iterate through the registrations until you find one that passes validation. You can collect alternates for fallback if desired.
 
-```js
-for (const event of events) {
-  const relay = await validateRelay(event.args.relayUrl)
-  if (relay) {
-    console.log('✅ Found valid relay:', relay.url)
-    // Use this relay for your transaction
-    break
+```js title="find-best-relay.ts" showLineNumbers mark=3-14
+async function findBestRelay(provider) {
+  console.log('\n🔬 Validating relays...')
+
+  for (const relay of candidates) {
+    const validRelay = await validateRelay(relay, provider)
+    if (validRelay)
+      return validRelay
   }
+
+  throw new Error('No valid relays found')
 }
+
+const relay = await findBestRelay(provider)
+console.log('✅ Using relay:', relay.url)
 ```
 
 This simple loop already improves reliability dramatically compared to a hardcoded URL.
