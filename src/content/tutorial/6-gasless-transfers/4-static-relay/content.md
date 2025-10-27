@@ -106,42 +106,44 @@ const approvalAmount = amountToSend.add(staticFee)
 
 ## Step 4: Sign the USDT Meta-Approval
 
-Build the EIP-712 payload and sign it with the sponsor wallet.
+USDT on Polygon uses `executeMetaTransaction` for gasless approvals. Build the EIP-712 MetaTransaction payload and sign it.
 
 ```js
+// First, encode the approve function call
+const approveFunctionSignature = usdt.interface.encodeFunctionData('approve', [
+  TRANSFER_CONTRACT_ADDRESS,
+  approvalAmount
+])
+
+// Build the MetaTransaction EIP-712 domain
 const domain = {
-  name: 'Tether USD',
+  name: 'USDT0',
   version: '1',
-  chainId: 137,
-  verifyingContract: USDT_ADDRESS
+  verifyingContract: USDT_ADDRESS,
+  salt: ethers.utils.hexZeroPad(ethers.utils.hexlify(137), 32) // chainId as salt
 }
 
 const types = {
-  Permit: [
-    { name: 'owner', type: 'address' },
-    { name: 'spender', type: 'address' },
-    { name: 'value', type: 'uint256' },
+  MetaTransaction: [
     { name: 'nonce', type: 'uint256' },
-    { name: 'deadline', type: 'uint256' }
+    { name: 'from', type: 'address' },
+    { name: 'functionSignature', type: 'bytes' }
   ]
 }
 
-const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour
-const value = {
-  owner: wallet.address,
-  spender: TRANSFER_CONTRACT_ADDRESS,
-  value: approvalAmount,
-  nonce,
-  deadline
+const message = {
+  nonce: nonce.toNumber(),
+  from: wallet.address,
+  functionSignature: approveFunctionSignature
 }
 
-const signature = await wallet._signTypedData(domain, types, value)
+const signature = await wallet._signTypedData(domain, types, message)
 const { r, s, v } = ethers.utils.splitSignature(signature)
 
-console.log('✍️  Approval signed')
+console.log('✍️  USDT approval signed')
 ```
 
-This approval allows the transfer contract to pull both the transfer amount and the relay fee from your wallet.
+This signature allows the relay to execute the `approve` call on your behalf via `executeMetaTransaction`.
 
 ---
 
@@ -212,9 +214,9 @@ console.log('✍️  Relay request signed')
 Use the OpenGSN HTTP client to send the request to your chosen relay.
 
 ```js
-import { HttpClient } from '@opengsn/common/dist/HttpClient'
+import { HttpClient, HttpWrapper } from '@opengsn/common'
 
-const httpClient = new HttpClient()
+const httpClient = new HttpClient(new HttpWrapper(), console)
 const relayResponse = await httpClient.relayTransaction(process.env.RELAY_URL, {
   relayRequest,
   metadata: {
