@@ -1,5 +1,5 @@
 import { TypedRequestData } from '@opengsn/common/dist/EIP712/TypedRequestData.js'
-import { getHttpClient } from '@opengsn/common/dist/HttpClient.js'
+import { HttpClient, HttpWrapper } from '@opengsn/common'
 import { ethers } from 'ethers'
 
 // 🔐 Paste your private key from Lesson 1 here!
@@ -23,7 +23,7 @@ const USDT_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function transfer(address, uint256) returns (bool)',
   'function executeMetaTransaction(address from, bytes functionSignature, bytes32 sigR, bytes32 sigS, uint8 sigV) payable returns (bytes)',
-  'function getNonce(address) view returns (uint256)',
+  'function nonces(address) view returns (uint256)',
 ]
 
 const TRANSFER_ABI = [
@@ -43,7 +43,7 @@ async function main() {
 
   // Step 1: Get USDT nonce
   const usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, provider)
-  const usdtNonce = await usdt.getNonce(wallet.address)
+  const usdtNonce = await usdt.nonces(wallet.address)
 
   console.log('\n📝 USDT Nonce:', usdtNonce.toString())
 
@@ -171,7 +171,7 @@ async function main() {
   // Step 10: Submit to relay
   console.log('\n📡 Submitting to relay...')
 
-  const httpClient = getHttpClient()
+  const httpClient = new HttpClient(new HttpWrapper(), console)
   const relayResponse = await httpClient.relayTransaction(RELAY_URL, {
     relayRequest,
     metadata: {

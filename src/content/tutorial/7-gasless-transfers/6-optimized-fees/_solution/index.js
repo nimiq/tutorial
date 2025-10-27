@@ -1,5 +1,5 @@
 import { TypedRequestData } from '@opengsn/common/dist/EIP712/TypedRequestData.js'
-import { getHttpClient } from '@opengsn/common/dist/HttpClient.js'
+import { HttpClient, HttpWrapper } from '@opengsn/common'
 import { ethers } from 'ethers'
 
 // 🔐 Paste your private key from Lesson 1 here!
@@ -25,7 +25,7 @@ const GAS_LIMITS = {
 // ABIs
 const USDT_ABI = [
   'function balanceOf(address) view returns (uint256)',
-  'function getNonce(address) view returns (uint256)',
+  'function nonces(address) view returns (uint256)',
 ]
 
 const TRANSFER_ABI = [
@@ -218,7 +218,7 @@ async function main() {
 
   // Build transaction with calculated fee
   const usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, provider)
-  const usdtNonce = await usdt.getNonce(wallet.address)
+  const usdtNonce = await usdt.nonces(wallet.address)
 
   const transferAmount = ethers.utils.parseUnits(TRANSFER_AMOUNT_USDT, 6)
   const feeAmount = relay.feeData.usdtFee // Use optimized fee
@@ -318,7 +318,7 @@ async function main() {
   console.log('\n📡 Submitting to relay...')
   const relayNonce = await provider.getTransactionCount(relay.relayWorkerAddress)
 
-  const httpClient = getHttpClient()
+  const httpClient = new HttpClient(new HttpWrapper(), console)
   const relayResponse = await httpClient.relayTransaction(relay.url, {
     relayRequest,
     metadata: {
