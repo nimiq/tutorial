@@ -1,0 +1,1 @@
+{"name":"gasless-advanced","version":"1.0.0","type":"module","scripts":{"discover":"node --watch index.js","optimized":"node --watch index.js"},"dependencies":{"ethers":"^5.7.2","@opengsn/common":"^2.2.6","axios":"^1.6.0"}}

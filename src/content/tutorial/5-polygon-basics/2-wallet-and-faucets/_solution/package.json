@@ -1,0 +1,1 @@
+{"name":"polygon-wallet-setup","version":"1.0.0","type":"module","scripts":{"dev":"node --watch index.js"},"dependencies":{"ethers":"^5.7.2"}}

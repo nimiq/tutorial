@@ -1,0 +1,1 @@
+{"name":"gasless-static-relay","version":"1.0.0","type":"module","scripts":{"gasless":"node --watch index.js"},"dependencies":{"ethers":"^5.7.2","@opengsn/common":"^2.2.6"}}

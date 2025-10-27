@@ -123,7 +123,7 @@ nimiq-tutorial/
 │   │       ├── 1-connecting-to-network/
 │   │       ├── 2-working-with-transactions/
 │   │       ├── 3-staking-and-validators/
-│   │       └── 4-miscellaneous/
+│   │       └── 4-polygon/
 │   └── templates/            # Code templates
 ├── public/                   # Static assets
 ├── scripts/                  # Build scripts

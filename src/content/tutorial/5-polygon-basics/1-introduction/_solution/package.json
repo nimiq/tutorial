@@ -1,0 +1,1 @@
+{"name":"polygon-basics-demo","version":"1.0.0","type":"module","scripts":{"demo":"node --watch index.js"},"dependencies":{"ethers":"^5.7.2"}}
