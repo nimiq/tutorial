@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "scripts": { "generate": "node --watch index.js" },
+  "dependencies": { "ethers": "^5.7.2" }
+}

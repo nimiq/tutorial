@@ -44,13 +44,7 @@ const version = import.meta.env.PACKAGE_VERSION || '0.0.2'
   // Add version info to logo title on page load
   document.addEventListener('DOMContentLoaded', () => {
     // Find the logo element (assuming it's the first child of the logo slot)
-    const logoSlot = document.querySelector('nav [slot="logo"]') || 
-                     document.querySelector('nav a[href="/"]') ||
-                     document.querySelector('nav img') ||
-                     document.querySelector('nav svg')
-    
-    if (logoSlot) {
-      logoSlot.title = `Version ${version}`
-    }
+    const logoSlot = document.querySelector('nav [slot="logo"]') || document.querySelector('nav a[href="/"]') || document.querySelector('nav img') || document.querySelector('nav svg')
+    if (logoSlot) logoSlot.title = `Version ${version}`
   })
 </script>

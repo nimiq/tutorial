@@ -4,7 +4,7 @@ export default antfu({
   formatters: true,
   unocss: true,
   astro: true,
-  ignores: ['./public/widget.css', './public/widget.js'],
+  ignores: ['./public/widget.css', './public/widget.js', './src/components/CustomTopBar.astro'],
 }, {
   rules: {
     'no-console': 'off',

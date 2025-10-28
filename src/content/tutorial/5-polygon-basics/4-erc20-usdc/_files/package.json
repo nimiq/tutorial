@@ -1,0 +1,1 @@
+{ "name": "erc20-usdc", "type": "module", "version": "1.0.0", "scripts": { "send": "node --watch index.js" }, "dependencies": { "ethers": "^5.7.2" } }

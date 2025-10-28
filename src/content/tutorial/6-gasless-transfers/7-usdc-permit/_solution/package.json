@@ -1,0 +1,11 @@
+{
+  "name": "gasless-usdc-permit",
+  "type": "module",
+  "scripts": {
+    "usdc": "node index.js"
+  },
+  "dependencies": {
+    "@opengsn/common": "^2.2.6",
+    "ethers": "^5.7.2"
+  }
+}
