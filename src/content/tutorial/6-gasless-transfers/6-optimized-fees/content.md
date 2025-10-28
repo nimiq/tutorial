@@ -90,20 +90,35 @@ console.log('Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'g
 
 ---
 
-## Step 3: Combine Gas Costs and Relay Fees
+## Step 3: Get Gas Limit from Transfer Contract
 
-```js title="fee-components.ts" showLineNumbers mark=1-18
-// Method-specific gas limits (from wallet implementation)
-const GAS_LIMITS = {
-  transfer: 65000,
-  transferWithPermit: 72000,
-  transferWithApproval: 72000,
-  swapWithApproval: 85000
-}
+Instead of hardcoding gas limits, query the transfer contract directly:
 
-const method = 'transferWithApproval'
-const gasLimit = GAS_LIMITS[method]
+```js title="gas-limit.ts" showLineNumbers mark=1-11
+const TRANSFER_CONTRACT_ABI = [
+  'function getRequiredRelayGas(bytes4 methodId) view returns (uint256)'
+]
 
+const transferContract = new ethers.Contract(
+  TRANSFER_CONTRACT_ADDRESS,
+  TRANSFER_CONTRACT_ABI,
+  provider
+)
+
+// Method selector for transferWithApproval
+const METHOD_SELECTOR = '0x8d89149b'
+const gasLimit = await transferContract.getRequiredRelayGas(METHOD_SELECTOR)
+
+console.log('Gas limit:', gasLimit.toString())
+```
+
+This ensures your gas estimates stay accurate even if the contract changes.
+
+---
+
+## Step 4: Combine Gas Costs and Relay Fees
+
+```js title="fee-components.ts" showLineNumbers mark=1-14
 // Calculate base cost
 const baseCost = bufferedGasPrice.mul(gasLimit)
 
@@ -122,30 +137,57 @@ This yields the amount of POL the relay expects to receive after covering gas.
 
 ---
 
-## Step 4: Convert POL Cost to USDT
+## Step 5: Get Real-Time POL/USDT Price from Uniswap
 
-```js title="fee-to-usdt.ts" showLineNumbers mark=1-11
-// Option 1: Hardcoded conservative rate
-const POL_PRICE_USD = 0.50 // $0.50 per POL (check current market)
-const USDT_DECIMALS = 6
+Query Uniswap V3 for the current exchange rate:
 
-const feeInUSD = Number.parseFloat(ethers.utils.formatEther(totalChainTokenFee)) * POL_PRICE_USD
-const feeInUSDT = ethers.utils.parseUnits((feeInUSD * 1.10).toFixed(6), USDT_DECIMALS) // 10% buffer
+```js title="uniswap-price.ts" showLineNumbers mark=1-21
+const UNISWAP_QUOTER = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
+const WMATIC = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+const USDT_WMATIC_POOL = '0x9B08288C3Be4F62bbf8d1C20Ac9C5e6f9467d8B7'
 
-console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, USDT_DECIMALS))
+const POOL_ABI = ['function fee() external view returns (uint24)']
+const QUOTER_ABI = [
+  'function quoteExactInputSingle(address tokenIn, address tokenOut, uint24 fee, uint256 amountIn, uint160 sqrtPriceLimitX96) external returns (uint256 amountOut)'
+]
 
-// Option 2: Fetch from Uniswap pool (advanced)
-// const pool = new ethers.Contract(POOL_ADDRESS, POOL_ABI, provider)
-// const price = await pool.slot0() // Get current price from pool
+async function getPolUsdtPrice(provider) {
+  const pool = new ethers.Contract(USDT_WMATIC_POOL, POOL_ABI, provider)
+  const quoter = new ethers.Contract(UNISWAP_QUOTER, QUOTER_ABI, provider)
+
+  const fee = await pool.fee()
+
+  // Quote: How much POL for 1 USDT?
+  const polPerUsdt = await quoter.callStatic.quoteExactInputSingle(
+    USDT_ADDRESS, WMATIC, fee, ethers.utils.parseUnits('1', 6), 0
+  )
+
+  return polPerUsdt // POL wei per 1 USDT
+}
 ```
-
-Start with a conservative fixed price, then graduate to on-chain oracles once you are ready.
-
-In production we look up the POL/USDT price using Uniswap's Quoter contract and then apply an extra 10-15% margin as insurance. That keeps the relay from being underpaid even if POL appreciates between fee estimation and transaction confirmation.
 
 ---
 
-## Step 5: Reject Expensive Relays
+## Step 6: Convert POL Cost to USDT
+
+```js title="fee-to-usdt.ts" showLineNumbers mark=1-8
+const polPerUsdt = await getPolUsdtPrice(provider)
+
+// Convert: totalPOLCost / polPerUsdt = USDT units
+// Apply 10% buffer for safety
+const feeInUSDT = totalChainTokenFee
+  .mul(1_000_000)
+  .div(polPerUsdt)
+  .mul(110).div(100)
+
+console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, 6))
+```
+
+Using Uniswap ensures your fees reflect current market rates, preventing underpayment when POL appreciates.
+
+---
+
+## Step 7: Reject Expensive Relays
 
 ```js title="guardrails.ts" showLineNumbers mark=1-9
 const MAX_PCT_RELAY_FEE = 70 // Never accept >70%
@@ -164,7 +206,7 @@ These guardrails prevent accidental overpayment when a relay is misconfigured or
 
 ---
 
-## Step 6: Choose the Best Relay
+## Step 8: Choose the Best Relay
 
 ```js title="choose-relay.ts" showLineNumbers mark=1-17
 async function getBestRelay(relays, gasLimit, method) {
@@ -208,24 +250,30 @@ These extras come straight from the Nimiq wallet codebase:
 
 ## Putting It All Together
 
-```js title="calculate-optimal-fee.ts" showLineNumbers mark=1-18
-async function calculateOptimalFee(method, relay) {
+```js title="calculate-optimal-fee.ts" showLineNumbers mark=1-21
+async function calculateOptimalFee(relay, provider, transferContract) {
   // 1. Get gas prices
   const networkGasPrice = await provider.getGasPrice()
-  const gasPrice = getBufferedGasPrice(networkGasPrice, relay.minGasPrice, method)
+  const baseGasPrice = networkGasPrice.gt(relay.minGasPrice)
+    ? networkGasPrice
+    : relay.minGasPrice
 
-  // 2. Get gas limit
-  const gasLimit = GAS_LIMITS[method]
+  // 2. Apply buffer
+  const bufferedGasPrice = baseGasPrice.mul(110).div(100) // 10% mainnet
 
-  // 3. Calculate chain token fee
-  const baseCost = gasPrice.mul(gasLimit)
+  // 3. Get gas limit from contract
+  const gasLimit = await transferContract.getRequiredRelayGas('0x8d89149b')
+
+  // 4. Calculate POL fee
+  const baseCost = bufferedGasPrice.mul(gasLimit)
   const withPctFee = baseCost.mul(100 + relay.pctRelayFee).div(100)
   const totalPOL = withPctFee.add(relay.baseRelayFee)
 
-  // 4. Convert to USDT with buffer
-  const usdtFee = await convertPOLtoUSDT(totalPOL, 1.10) // 10% buffer
+  // 5. Convert to USDT via Uniswap
+  const polPerUsdt = await getPolUsdtPrice(provider)
+  const usdtFee = totalPOL.mul(1_000_000).div(polPerUsdt).mul(110).div(100)
 
-  return { usdtFee, gasPrice, gasLimit }
+  return { usdtFee, gasPrice: bufferedGasPrice, gasLimit }
 }
 ```
 
@@ -238,9 +286,9 @@ Reuse this helper whenever you prepare a meta-transaction so each request reflec
 You now have a production-grade fee engine that:
 
 - ✅ Tracks live gas prices and relay minimums.
+- ✅ Queries contract for accurate gas limits.
+- ✅ Uses Uniswap V3 for real-time POL/USDT rates.
 - ✅ Applies thoughtful buffers to avoid underpayment.
-- ✅ Converts POL costs into USDT predictably.
 - ✅ Compares relays and selects the most cost-effective option.
 
-At this point your gasless transaction pipeline matches the approach we ship in the Nimiq wallet - ready for real users. From here you can integrate oracles, caching layers, and monitoring to keep everything running smoothly.
-Continue with the [Nimiq Developer Center](https://developers.nimiq.com/) recipes to embed the finished fee engine in your dApp UI.
+At this point your gasless transaction pipeline matches the approach we ship in the Nimiq wallet - ready for real users. The next lesson covers USDC transfers using the EIP-2612 permit approval method, showing how different tokens require different approval strategies.

@@ -7,29 +7,29 @@ const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1'
 
 // Mainnet addresses
 const POLYGON_RPC_URL = 'https://polygon-rpc.com'
-const USDT_ADDRESS = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'
-const TRANSFER_CONTRACT_ADDRESS = '0x98E69a6927747339d5E543586FC0262112eBe4BD'
+const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
+const TRANSFER_CONTRACT_ADDRESS = '0x3157d422cd1be13AC4a7cb00957ed717e648DFf2'
 const RELAY_HUB_ADDRESS = '0x6C28AfC105e65782D9Ea6F2cA68df84C9e7d750d'
 const RECEIVER_ADDRESS = '0xA3E49ef624bEaC43D29Af86bBFdE975Abaa0E184'
 
-const TRANSFER_AMOUNT_USDT = '0.01'
+const TRANSFER_AMOUNT_USDC = '0.01'
 
 // Uniswap V3 addresses for price queries
 const UNISWAP_QUOTER = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'
 const WMATIC_ADDRESS = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
-const USDT_WMATIC_POOL = '0x9B08288C3Be4F62bbf8d1C20Ac9C5e6f9467d8B7'
+const USDC_WMATIC_POOL = '0xA374094527e1673A86dE625aa59517c5dE346d32'
 
-// Method selector for transferWithApproval
-const METHOD_SELECTOR_TRANSFER_WITH_APPROVAL = '0x8d89149b'
+// Method selector for transferWithPermit
+const METHOD_SELECTOR_TRANSFER_WITH_PERMIT = '0x36efd16f'
 
 // ABIs
-const USDT_ABI = [
+const USDC_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function nonces(address) view returns (uint256)',
 ]
 
 const TRANSFER_ABI = [
-  'function transferWithApproval(address token, uint256 amount, address target, uint256 fee, uint256 approval, bytes32 sigR, bytes32 sigS, uint8 sigV)',
+  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 deadline, bytes32 sigR, bytes32 sigS, uint8 sigV)',
   'function getNonce(address) view returns (uint256)',
   'function getRequiredRelayGas(bytes4 methodId) view returns (uint256)',
 ]
@@ -114,24 +114,24 @@ async function validateRelay(relay, provider) {
   }
 }
 
-async function getPolUsdtPrice(provider) {
-  // Query Uniswap V3 pool for USDT/WMATIC price
-  const pool = new ethers.Contract(USDT_WMATIC_POOL, UNISWAP_POOL_ABI, provider)
+async function getPolUsdcPrice(provider) {
+  // Query Uniswap V3 pool for USDC/WMATIC price
+  const pool = new ethers.Contract(USDC_WMATIC_POOL, UNISWAP_POOL_ABI, provider)
   const quoter = new ethers.Contract(UNISWAP_QUOTER, UNISWAP_QUOTER_ABI, provider)
 
   // Get pool fee tier
   const fee = await pool.fee()
 
-  // Quote: How much POL for 1 USDT (1_000_000 base units)?
+  // Quote: How much POL for 1 USDC (1_000_000 base units)?
   const polAmountOut = await quoter.callStatic.quoteExactInputSingle(
-    USDT_ADDRESS, // tokenIn (USDT)
+    USDC_ADDRESS, // tokenIn (USDC)
     WMATIC_ADDRESS, // tokenOut (WMATIC)
     fee, // pool fee
-    ethers.utils.parseUnits('1', 6), // 1 USDT
+    ethers.utils.parseUnits('1', 6), // 1 USDC
     0, // sqrtPriceLimitX96
   )
 
-  return polAmountOut // POL wei per 1 USDT
+  return polAmountOut // POL wei per 1 USDC
 }
 
 async function calculateOptimalFee(relay, provider, transferContract, isMainnet = true) {
@@ -151,7 +151,7 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   console.log('  Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'gwei'), 'gwei', `(${bufferPercentage}%)`)
 
   // Step 4: Get gas limit from transfer contract
-  const gasLimit = await transferContract.getRequiredRelayGas(METHOD_SELECTOR_TRANSFER_WITH_APPROVAL)
+  const gasLimit = await transferContract.getRequiredRelayGas(METHOD_SELECTOR_TRANSFER_WITH_PERMIT)
 
   console.log('  Gas limit:', gasLimit.toString())
 
@@ -167,18 +167,18 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   console.log('  Total POL cost:', ethers.utils.formatEther(totalPOLCost), 'POL')
   console.log('  Relay fee:', `${relay.pctRelayFee}%`)
 
-  // Step 8: Get real-time POL/USDT price from Uniswap
-  const polPerUsdt = await getPolUsdtPrice(provider)
-  console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdt), 'POL per USDT')
+  // Step 8: Get real-time POL/USDC price from Uniswap
+  const polPerUsdc = await getPolUsdcPrice(provider)
+  console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdc), 'POL per USDC')
 
-  // Step 9: Convert POL fee to USDT with 10% buffer
-  // totalPOLCost (POL wei) / polPerUsdt (POL wei per USDT) = USDT base units
-  const feeInUSDT = totalPOLCost.mul(1_000_000).div(polPerUsdt).mul(110).div(100)
+  // Step 9: Convert POL fee to USDC with 10% buffer
+  // totalPOLCost (POL wei) / polPerUsdc (POL wei per USDC) = USDC base units
+  const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc).mul(110).div(100)
 
-  console.log('  USDT fee:', ethers.utils.formatUnits(feeInUSDT, 6), 'USDT')
+  console.log('  USDC fee:', ethers.utils.formatUnits(feeInUSDC, 6), 'USDC')
 
   return {
-    usdtFee: feeInUSDT,
+    usdcFee: feeInUSDC,
     gasPrice: bufferedGasPrice,
     gasLimit,
     polCost: totalPOLCost,
@@ -206,8 +206,8 @@ async function findBestRelay(provider, transferContract) {
     try {
       const feeData = await calculateOptimalFee(validRelay, provider, transferContract)
 
-      if (feeData.usdtFee.lt(lowestFee)) {
-        lowestFee = feeData.usdtFee
+      if (feeData.usdcFee.lt(lowestFee)) {
+        lowestFee = feeData.usdcFee
         bestRelay = { ...validRelay, feeData }
         console.log('  ✅ New best relay!\n')
       }
@@ -228,7 +228,7 @@ async function findBestRelay(provider, transferContract) {
 }
 
 async function main() {
-  console.log('🚀 Gasless USDT transfer with optimized fee calculation...\n')
+  console.log('🚀 Gasless USDC transfer with EIP-2612 Permit...\n')
 
   const provider = new ethers.providers.JsonRpcProvider(POLYGON_RPC_URL)
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider)
@@ -244,58 +244,59 @@ async function main() {
 
   console.log('\n✅ Selected relay:', relay.url)
   console.log('   Worker:', relay.relayWorkerAddress)
-  console.log('   Optimized USDT fee:', ethers.utils.formatUnits(relay.feeData.usdtFee, 6), 'USDT')
+  console.log('   Optimized USDC fee:', ethers.utils.formatUnits(relay.feeData.usdcFee, 6), 'USDC')
   console.log('   Gas price:', ethers.utils.formatUnits(relay.feeData.gasPrice, 'gwei'), 'gwei')
 
   // Build transaction with calculated fee
-  const usdt = new ethers.Contract(USDT_ADDRESS, USDT_ABI, provider)
-  const usdtNonce = await usdt.nonces(wallet.address)
+  const usdc = new ethers.Contract(USDC_ADDRESS, USDC_ABI, provider)
+  const usdcNonce = await usdc.nonces(wallet.address)
 
-  const transferAmount = ethers.utils.parseUnits(TRANSFER_AMOUNT_USDT, 6)
-  const feeAmount = relay.feeData.usdtFee // Use optimized fee
+  const transferAmount = ethers.utils.parseUnits(TRANSFER_AMOUNT_USDC, 6)
+  const feeAmount = relay.feeData.usdcFee // Use optimized fee
   const approvalAmount = transferAmount.add(feeAmount)
 
-  console.log('\n💰 Transfer:', TRANSFER_AMOUNT_USDT, 'USDT')
-  console.log('💸 Optimized fee:', ethers.utils.formatUnits(feeAmount, 6), 'USDT')
-  console.log('✅ Total approval:', ethers.utils.formatUnits(approvalAmount, 6), 'USDT')
+  console.log('\n💰 Transfer:', TRANSFER_AMOUNT_USDC, 'USDC')
+  console.log('💸 Optimized fee:', ethers.utils.formatUnits(feeAmount, 6), 'USDC')
+  console.log('✅ Total approval:', ethers.utils.formatUnits(approvalAmount, 6), 'USDC')
 
-  // Sign USDT approval
-  const approveFunctionSignature = usdt.interface.encodeFunctionData('approve', [
-    TRANSFER_CONTRACT_ADDRESS,
-    approvalAmount,
-  ])
+  // Sign USDC permit (EIP-2612)
+  const deadline = ethers.constants.MaxUint256
 
-  const usdtDomain = {
-    name: 'USDT0',
-    version: '1',
-    verifyingContract: USDT_ADDRESS,
-    salt: ethers.utils.hexZeroPad(ethers.utils.hexlify(137), 32),
+  const usdcDomain = {
+    name: 'USD Coin',
+    version: '2',
+    chainId: 137,
+    verifyingContract: USDC_ADDRESS,
   }
 
-  const usdtTypes = {
-    MetaTransaction: [
+  const usdcTypes = {
+    Permit: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
       { name: 'nonce', type: 'uint256' },
-      { name: 'from', type: 'address' },
-      { name: 'functionSignature', type: 'bytes' },
+      { name: 'deadline', type: 'uint256' },
     ],
   }
 
-  const usdtMessage = {
-    nonce: usdtNonce.toNumber(),
-    from: wallet.address,
-    functionSignature: approveFunctionSignature,
+  const usdcMessage = {
+    owner: wallet.address,
+    spender: TRANSFER_CONTRACT_ADDRESS,
+    value: approvalAmount,
+    nonce: usdcNonce.toNumber(),
+    deadline,
   }
 
-  const approvalSignature = await wallet._signTypedData(usdtDomain, usdtTypes, usdtMessage)
+  const approvalSignature = await wallet._signTypedData(usdcDomain, usdcTypes, usdcMessage)
   const { r: sigR, s: sigS, v: sigV } = ethers.utils.splitSignature(approvalSignature)
 
   // Build transfer calldata
-  const transferCalldata = transferContract.interface.encodeFunctionData('transferWithApproval', [
-    USDT_ADDRESS,
+  const transferCalldata = transferContract.interface.encodeFunctionData('transferWithPermit', [
+    USDC_ADDRESS,
     transferAmount,
     RECEIVER_ADDRESS,
     feeAmount,
-    approvalAmount,
+    deadline,
     sigR,
     sigS,
     sigV,
@@ -363,14 +364,13 @@ async function main() {
     ? relayResponse
     : relayResponse.signedTx || relayResponse.txHash
 
-  console.log('\n✅ Gasless transaction sent!')
+  console.log('\n✅ Gasless USDC transaction sent!')
   console.log('🔗 View:', `https://polygonscan.com/tx/${txHash}`)
-  console.log('\n💡 Used production-grade fee optimization:')
-  console.log('   ✅ Dynamic gas price discovery')
-  console.log('   ✅ Gas limits from contract (getRequiredRelayGas)')
-  console.log('   ✅ Real-time POL/USDT pricing from Uniswap V3')
-  console.log('   ✅ Network-aware safety buffers')
-  console.log('   ✅ Relay fee comparison')
+  console.log('\n💡 Key differences from USDT:')
+  console.log('   ✅ EIP-2612 Permit (not meta-transaction)')
+  console.log('   ✅ Version-based domain separator')
+  console.log('   ✅ transferWithPermit method (not transferWithApproval)')
+  console.log('   ✅ Deadline parameter (not functionSignature)')
 }
 
 main().catch((error) => {
