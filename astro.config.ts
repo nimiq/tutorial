@@ -1,9 +1,9 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import vue from '@astrojs/vue'
 import tutorialkit from '@tutorialkit/astro'
 import { defineConfig } from 'astro/config'
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import path from 'path'
 
 // Read package version at build time
 const __filename = fileURLToPath(import.meta.url)
