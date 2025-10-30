@@ -1,9 +1,10 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import vue from '@astrojs/vue'
 import tutorialkit from '@tutorialkit/astro'
 import { defineConfig } from 'astro/config'
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import path from 'path'
+import { llmsPlugin } from './src/plugins/llms-plugin'
 
 // Read package version at build time
 const __filename = fileURLToPath(import.meta.url)
@@ -19,6 +20,7 @@ export default defineConfig({
     define: {
       'import.meta.env.PACKAGE_VERSION': JSON.stringify(packageJson.version),
     },
+    plugins: [llmsPlugin()],
   },
   integrations: [
     tutorialkit({
