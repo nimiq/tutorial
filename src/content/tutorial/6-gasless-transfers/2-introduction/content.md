@@ -53,7 +53,7 @@ Think of OpenGSN as a courier service. Your user writes a letter (signs a reques
 Polygon Basics used **Polygon Amoy testnet**; gasless transfers in this part run on **Polygon mainnet**. Keep both configs handy:
 
 | Parameter          | Polygon Mainnet           | Polygon Amoy Testnet                  |
-|--------------------|---------------------------|---------------------------------------|
+| ------------------ | ------------------------- | ------------------------------------- |
 | **Chain ID**       | 137                       | 80002                                 |
 | **RPC URL**        | `https://polygon-rpc.com` | `https://rpc-amoy.polygon.technology` |
 | **Block Explorer** | https://polygonscan.com   | https://amoy.polygonscan.com          |

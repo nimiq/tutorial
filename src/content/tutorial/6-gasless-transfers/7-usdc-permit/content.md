@@ -44,6 +44,7 @@ Older tokens such as USDT predate EIP-2612, so they expose custom meta-transacti
 ## EIP-2612 Permit vs Meta-Transaction
 
 ### USDT Meta-Transaction (Gasless USDT Lesson)
+
 ```js
 // Salt-based domain separator
 const domain = {
@@ -63,6 +64,7 @@ const types = {
 ```
 
 ### USDC Permit (This Lesson)
+
 ```js
 // Version-based domain separator (EIP-2612 standard)
 const domain = {
@@ -87,14 +89,14 @@ const types = {
 
 ## Key Differences
 
-| Aspect | USDT Meta-Transaction (Gasless USDT Lesson) | USDC Permit (This Lesson) |
-|--------|---------------------------------|---------------------------|
-| **Standardization** | Custom, tether-specific | Formalized in EIP-2612 |
-| **Domain separator** | Uses `salt` derived from chain | Uses `version` plus `chainId` |
-| **Typed struct** | `MetaTransaction` with encoded bytes | `Permit` with discrete fields |
-| **Expiry control** | No expiration | Explicit `deadline` |
-| **Transfer helper** | `transferWithApproval` | `transferWithPermit` |
-| **Method selector** | `0x8d89149b` | `0x36efd16f` |
+| Aspect               | USDT Meta-Transaction (Gasless USDT Lesson) | USDC Permit (This Lesson)     |
+| -------------------- | ------------------------------------------- | ----------------------------- |
+| **Standardization**  | Custom, tether-specific                     | Formalized in EIP-2612        |
+| **Domain separator** | Uses `salt` derived from chain              | Uses `version` plus `chainId` |
+| **Typed struct**     | `MetaTransaction` with encoded bytes        | `Permit` with discrete fields |
+| **Expiry control**   | No expiration                               | Explicit `deadline`           |
+| **Transfer helper**  | `transferWithApproval`                      | `transferWithPermit`          |
+| **Method selector**  | `0x8d89149b`                                | `0x36efd16f`                  |
 
 Keep this table nearby while refactoring; you will touch each of these rows as you migrate the code.
 
@@ -173,14 +175,14 @@ const transferContract = new ethers.Contract(
 )
 
 const transferCalldata = transferContract.interface.encodeFunctionData('transferWithPermit', [
-  USDC_ADDRESS,       // token
-  transferAmount,     // amount
-  RECEIVER_ADDRESS,   // target
-  feeAmount,          // fee
-  deadline,           // deadline ⚠️ New parameter
-  r,                  // sigR
-  s,                  // sigS
-  v,                  // sigV
+  USDC_ADDRESS, // token
+  transferAmount, // amount
+  RECEIVER_ADDRESS, // target
+  feeAmount, // fee
+  deadline, // deadline ⚠️ New parameter
+  r, // sigR
+  s, // sigS
+  v, // sigV
 ])
 ```
 
@@ -243,11 +245,13 @@ const TRANSFER_ABI = [
 ## Why Two Approval Methods?
 
 **USDT** (pre-EIP-2612 era):
+
 - Custom meta-transaction implementation
 - Salt-based domain separator
 - Encodes full function call in signature
 
 **USDC** (EIP-2612 compliant):
+
 - Standardized permit interface
 - Version + chainId domain separator
 - Simpler parameter structure
