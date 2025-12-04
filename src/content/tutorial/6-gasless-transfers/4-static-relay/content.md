@@ -34,7 +34,7 @@ Key roles involved:
 
 If you have never met OpenGSN before, keep this component cheat sheet handy:
 
-- **Forwarder:** verifies the meta-transaction signature and keeps per-sender nonces so relays cannot replay old requests. The Nimiq transfer contract bundles a forwarder implementation; see the reference in the [Nimiq Developer Center](https://developers.nimiq.com/).
+- **Forwarder:** verifies the meta-transaction signature and keeps per-sender nonces so relays cannot replay old requests. The Nimiq transfer contract bundles a forwarder implementation; see the reference in the [Nimiq Developer Center](https://www.nimiq.com/developers/).
 - **Paymaster:** refunds the relay in tokens such as USDT or USDC. For this tutorial the same transfer contract doubles as paymaster.
 - **RelayHub:** the canonical on-chain registry of relays. Its API is documented in the [OpenGSN Docs](https://docs.opengsn.org/).
 - **Relay server:** an off-chain service that watches the hub and exposes `/getaddr` plus `/relay` endpoints. Polygon’s networking requirements for relays are outlined in the [Polygon developer documentation](https://docs.polygon.technology/).
@@ -222,7 +222,7 @@ console.log('✍️  Relay request signed')
 
 ## Step 7: Submit the Meta-Transaction
 
-Use the OpenGSN HTTP client to send the request to your chosen relay. The worker nonce check prevents you from handing the relay a `relayMaxNonce` that is already stale—if the worker broadcasts several transactions in quick succession, your request will still slide in. Likewise, `validUntil` in the previous step protects the relay from signing requests that could be replayed months later.
+Use the OpenGSN HTTP client to send the request to your chosen relay. The worker nonce check prevents you from handing the relay a `relayMaxNonce` that is already stale — if the worker broadcasts several transactions in quick succession, your request will still slide in. Likewise, `validUntil` in the previous step protects the relay from signing requests that could be replayed months later.
 
 ```js title="index.js" showLineNumbers mark=1-18
 import { HttpClient, HttpWrapper } from '@opengsn/common'
@@ -279,4 +279,4 @@ You have now:
 - ✅ Understood the flow between approval, relay request, and paymaster contract.
 - ✅ Prepared the foundation for relay discovery and fee optimization.
 
-Next up, **Lesson 5** walks through discovering relays dynamically from the RelayHub and filtering them with health checks informed by the [OpenGSN relay operator guide](https://docs.opengsn.org/relay/). That will let you replace today’s hardcoded URL with resilient discovery logic.
+Next up, **Discovering Relays Dynamically** walks through discovering relays from RelayHub and filtering them with health checks informed by the [OpenGSN relay operator guide](https://docs.opengsn.org/relay/). That will let you replace today’s hardcoded URL with resilient discovery logic.

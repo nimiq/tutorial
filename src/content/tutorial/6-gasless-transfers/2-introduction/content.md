@@ -13,7 +13,7 @@ terminal:
 
 # Introduction to Gasless Transactions
 
-Welcome to the last stretch of the tutorial series. By the end of this section you will know how to let users move stablecoins on Polygon **without holding any POL for gas**. If you can already send a regular ERC-20 transfer on Polygon, you have all the background you need—we will layer OpenGSN concepts on top in digestible steps.
+Welcome to the last stretch of the tutorial series. By the end of this section you will know how to let users move stablecoins on Polygon **without holding any POL for gas**. If you can already send a regular ERC-20 transfer on Polygon, you have all the background you need — we will layer OpenGSN concepts on top in digestible steps.
 
 ---
 
@@ -29,9 +29,47 @@ Our goal is to flip that experience so the end user only thinks about the asset 
 
 ---
 
+## Tokens in This Section
+
+The core gasless pipeline in this section uses **USDT on Polygon mainnet** because that is what the Nimiq transfer contract supports today. The final lesson extends the same pattern to **USDC** using the EIP‑2612 permit standard.
+
+In practice:
+
+- Complete the baseline, static relay, relay discovery, and optimized fee lessons with **USDT**.
+- Use **USDC** only in the permit-focused lesson to see how standardized approvals change the implementation.
+
+The OpenGSN and meta-transaction concepts are identical; only the approval mechanics differ between USDT and USDC.
+
+---
+
 ## Gasless Payments in Plain Language
 
-Think of OpenGSN as a courier service. Your user writes a letter (signs a request) and hands it to a courier (a relay). The courier pays the highway tolls (gas in POL) to deliver the letter on-chain. Once the job is done, your contract thanks the courier by reimbursing the tolls _plus_ a service fee in the token the user chose—USDT in our case. The user never had to touch POL.
+Think of OpenGSN as a courier service. Your user writes a letter (signs a request) and hands it to a courier (a relay). The courier pays the highway tolls (gas in POL) to deliver the letter on-chain. Once the job is done, your contract thanks the courier by reimbursing the tolls _plus_ a service fee in the token the user chose — USDT in our case. The user never had to touch POL.
+
+---
+
+## Network Configuration
+
+Polygon Basics used **Polygon Amoy testnet**; gasless transfers in this part run on **Polygon mainnet**. Keep both configs handy:
+
+| Parameter          | Polygon Mainnet           | Polygon Amoy Testnet                  |
+|--------------------|---------------------------|---------------------------------------|
+| **Chain ID**       | 137                       | 80002                                 |
+| **RPC URL**        | `https://polygon-rpc.com` | `https://rpc-amoy.polygon.technology` |
+| **Block Explorer** | https://polygonscan.com   | https://amoy.polygonscan.com          |
+| **Native Token**   | POL                       | Test POL (from faucet)                |
+| **USDC Address**   | `0x...`                   | `0x...`                               |
+
+> **Note:** Testnet token addresses can change; always confirm them in the faucet or official docs before using real code or funds.
+
+### Getting Testnet Tokens
+
+1. Visit the [Polygon faucet](https://faucet.polygon.technology/).
+2. Enter your wallet address.
+3. Select **Polygon Amoy** and the **POL** token.
+4. Wait about a minute for tokens to arrive.
+
+Always use **testnet** while experimenting with new code paths. Switch to **mainnet** only once you are confident in your setup and understand the risks to real funds.
 
 ---
 
@@ -74,29 +112,29 @@ Keep these names in mind—the upcoming lessons will point back to them as you i
 
 ## Roadmap for This Section
 
-Over four lessons we will evolve a gasless payment flow from “hello world” to production-ready:
+Over four implementation lessons we will evolve a gasless payment flow from “hello world” to production-ready:
 
-### Lesson 2: The Gasful Baseline
+### Gasful Baseline
 
 - Send USDT the traditional way to measure the true gas cost.
 - Record balances and receipts so you can compare later.
 
-### Lesson 3: Gasless with a Static Relay
+### Gasless with a Static Relay
 
 - Plug in a known relay URL and wire OpenGSN into your script.
 - Sign EIP-712 payloads for approvals and relay requests.
 - Complete a gasless USDT transfer where the relay fee is hardcoded.
 
-### Lesson 4: Discovering Relays Dynamically
+### Discovering Relays Dynamically
 
 - Query RelayHub for active relays and verify their health signals.
 - Fall back gracefully if a relay is offline or misconfigured.
 
-### Lesson 5: Optimized Fee Calculation
+### Optimized Fee Calculation
 
 - Derive dynamic fees from live gas prices and relay-specific terms.
 - Apply safety buffers so you never underpay.
-- Compare multiple relays and pick the cheapest healthy option—exactly what ships in the Nimiq wallet.
+- Compare multiple relays and pick the cheapest healthy option — exactly what ships in the Nimiq wallet.
 
 ---
 
@@ -104,7 +142,7 @@ Over four lessons we will evolve a gasless payment flow from “hello world” t
 
 Gasless transactions unlock better UX across the board:
 
-- **Wallets:** Onboard users faster—no swapping or bridging needed before the first send.
+- **Wallets:** Onboard users faster — no swapping or bridging needed before the first send.
 - **Games:** Players stay immersed in in-game currencies instead of juggling gas tokens.
 - **Payments:** Merchants collect USDT without explaining side costs to customers.
 - **Onboarding:** First-time users succeed without leaving your app to acquire POL.
@@ -126,7 +164,7 @@ When the relay submits that payload on-chain:
 1. The **Forwarder** verifies the signature really belongs to your user.
 2. The Forwarder executes the requested contract call on your behalf.
 3. Your contract (through the Paymaster) transfers the fee from your user to the relay.
-4. The relay ends up whole—it recovers the POL it spent plus its service fee.
+4. The relay ends up whole — it recovers the POL it spent plus its service fee.
 
 ### OpenGSN Architecture (High Level)
 
@@ -165,8 +203,8 @@ When the relay submits that payload on-chain:
 
 Make sure you have:
 
-- A wallet with **2-5 USDT** on Polygon mainnet (more is fine).
-- A small buffer of **POL (0.01-0.1)** to cover the baseline transaction in Lesson 2.
+- A wallet with **2–5 USDT** on Polygon mainnet (more is fine) for the core gasless lessons.
+- A small buffer of **POL (0.01–0.1)** to cover the gasful baseline transaction.
 - A **mainnet RPC endpoint** from Alchemy, Infura, or another provider.
 
 > 💡 Need USDT? Bridge it from Ethereum, swap on an exchange, or use any reputable source. You only need a couple of dollars for the exercises, but having a little extra makes debugging easier.
@@ -175,7 +213,7 @@ Make sure you have:
 
 ## The Demo Script
 
-The accompanying script shows the **fully optimized flow from Lesson 5**. The demo runs automatically when you open this lesson—check the terminal output to watch the simulation unfold. Treat it as both a preview and a troubleshooting companion:
+The accompanying script shows the **fully optimized flow from Lesson 5**. The demo runs automatically when you open this lesson — check the terminal output to watch the simulation unfold. Treat it as both a preview and a troubleshooting companion:
 
 - **Review the terminal** to see how relay discovery and fee calculation work together.
 - **Revisit the code** as you implement each lesson to confirm your work.
@@ -187,4 +225,4 @@ The accompanying script shows the **fully optimized flow from Lesson 5**. The de
 
 ## Next Up
 
-Move on to **Lesson 2: The Gasful Baseline** to perform one last traditional transfer. You will measure the exact gas cost before we eliminate it with OpenGSN.
+Move on to the **gasful baseline lesson** to perform one last traditional transfer. You will measure the exact gas cost before we eliminate it with OpenGSN.

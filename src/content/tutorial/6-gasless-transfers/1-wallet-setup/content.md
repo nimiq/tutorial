@@ -13,7 +13,7 @@ terminal:
 
 # Mainnet Wallet Setup
 
-Before working with gasless transactions on Polygon mainnet, you need a wallet with real funds. This lesson generates a fresh wallet and shows you how to secure it properly.
+Before working with gasless transactions on Polygon mainnet, you need a wallet with real funds. This lesson generates a new wallet and shows you how to secure it properly.
 
 ---
 
@@ -67,7 +67,7 @@ console.log('Mnemonic:', wallet.mnemonic.phrase)
 
 For a better UX, import your 24-word mnemonic into the Nimiq Wallet:
 
-1. Visit **https://wallet.nimiq.com**
+1. Visit https://wallet.nimiq.com
 2. Select "Import with Recovery Words"
 3. Paste your 24-word phrase
 4. Access your wallet through a friendly interface
@@ -78,37 +78,55 @@ The Nimiq Wallet supports Polygon and makes managing tokens easier than the comm
 
 ## Get Mainnet Funds
 
-You need two types of tokens:
+### USDT (for core gasless transfers)
 
-### USDC (for transfers)
-
-Visit **https://faucet.circle.com/** to get testnet USDC that works on mainnet. You will need 2-5 USDC to complete the gasless lessons.
-
-### POL (for gas in Lesson 2)
-
-Visit **https://faucet.polygon.technology/** to get a small amount of POL. You only need ~0.1 POL for the baseline gasful transaction in the next lesson.
-
-### USDT (no faucet available)
-
-There is no public faucet for USDT on Polygon mainnet. If you want to follow along with USDT examples instead of USDC, you will need to:
+You will use USDT for the baseline and OpenGSN lessons (Lessons 3–6). There is no public faucet for USDT on Polygon mainnet, so you must:
 
 - Purchase USDT on an exchange and withdraw to Polygon
-- Swap USDC for USDT using a DEX like Uniswap
+- Swap into USDT on Polygon using a DEX such as Uniswap
 - Bridge USDT from Ethereum mainnet
 
-> For this tutorial, USDC is recommended since it has faucet access.
+Aim for 2–5 USDT to comfortably complete the exercises.
+
+### USDC (for the permit lesson)
+
+USDC is only needed for the EIP-2612 permit lesson (Lesson 7). For Polygon mainnet USDC you must use a real liquidity source. Typical options are:
+
+- Purchase USDC on an exchange and withdraw directly to Polygon
+- Bridge USDC from another chain (for example Ethereum mainnet) using a trusted bridge
+- Swap into USDC on Polygon via a DEX such as Uniswap
+
+If you want to practice on testnets before touching mainnet, you can use https://faucet.circle.com/ to obtain **testnet** USDC on supported networks. That testnet USDC is not usable on Polygon mainnet.
+
+### POL (for gas in gasful baseline lesson)
+
+For Polygon mainnet POL you cannot use the Polygon faucet (it only serves testnets like Amoy). Instead:
+
+- Acquire POL on an exchange and withdraw to Polygon mainnet, or
+- Bridge POL (or wrapped MATIC) from another network.
+
+You only need ~0.1 POL for the baseline gasful transaction in the next lesson, but it must be real mainnet POL.
 
 ---
 
 ## Save Your Private Key
 
-Copy your **private key** from the terminal output. You will paste it directly into the code files in the following lessons. Each lesson will have a placeholder like:
+Copy your **private key** from the terminal output. In the following lessons, load it from an environment variable instead of hardcoding it in source code. For example:
 
-```js
-const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1'
+```bash
+# .env
+SENDER_PRIVATE_KEY=0xYOUR_PRIVATE_KEY_FROM_LESSON_1
 ```
 
-Replace that placeholder with your actual private key. Never commit files with your real private key to version control.
+```js
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+const wallet = new ethers.Wallet(process.env.SENDER_PRIVATE_KEY, provider)
+```
+
+Never commit `.env` files with real private keys to version control.
 
 ---
 
@@ -124,4 +142,4 @@ Before moving forward, confirm:
 
 ## Next Up
 
-In **Lesson 2: Introduction to Gasless Transactions**, you will learn why gasless transactions matter and see the architecture that makes them possible.
+In **Introduction to Gasless Transactions**, you will learn why gasless transactions matter and see the architecture that makes them possible.

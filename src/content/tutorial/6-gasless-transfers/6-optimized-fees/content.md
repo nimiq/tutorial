@@ -13,7 +13,7 @@ terminal:
 
 # Optimized Fee Calculation
 
-Hardcoding relay fees works for prototypes, but production systems need to adapt to market conditions in real time. In this lesson you will calculate the exact fee a relay should receive based on live gas prices, relay-specific pricing, and protective buffers - mirroring the logic in the Nimiq wallet.
+Hardcoding relay fees works for prototypes, but production systems need to adapt to market conditions in real time. In this lesson you will calculate the exact fee a relay should receive based on live gas prices, relay-specific pricing, and protective buffers — mirroring the logic in the Nimiq wallet.
 
 ---
 
@@ -25,7 +25,7 @@ Hardcoding relay fees works for prototypes, but production systems need to adapt
 - Convert that POL cost into USDT using conservative pricing assumptions.
 - Compare multiple relays and pick the most cost-effective option.
 
-The maths mirrors the `calculateGaslessFee` helper inside `@cashlink/currency/src/gasless/fees.ts`. Cross-reference it with the [OpenGSN fee model documentation](https://docs.opengsn.org/relay/relay-lifecycle.html#fees) and the [Nimiq wallet engineering notes](https://developers.nimiq.com/) if you want to see the production lineage.
+The math mirrors the `calculateGaslessFee` helper inside `@cashlink/currency/src/gasless/fees.ts`. Cross-reference it with the [OpenGSN fee model documentation](https://docs.opengsn.org/relay/relay-lifecycle.html#fees) and the [Nimiq wallet engineering notes](https://developers.nimiq.com/) if you want to see the production lineage.
 
 ---
 
@@ -52,8 +52,8 @@ Where:
 const networkGasPrice = await provider.getGasPrice()
 console.log('Network gas price:', ethers.utils.formatUnits(networkGasPrice, 'gwei'), 'gwei')
 
-// Get relay's minimum
-const relay = await discoverRelay() // From lesson 3
+// Get relay's minimum (from the relay discovery lesson)
+const relay = await discoverRelay()
 const minGasPrice = ethers.BigNumber.from(relay.minGasPrice)
 
 // Take the max
@@ -159,7 +159,11 @@ async function getPolUsdtPrice(provider) {
 
   // Quote: How much POL for 1 USDT?
   const polPerUsdt = await quoter.callStatic.quoteExactInputSingle(
-    USDT_ADDRESS, WMATIC, fee, ethers.utils.parseUnits('1', 6), 0
+    USDT_ADDRESS,
+    WMATIC,
+    fee,
+    ethers.utils.parseUnits('1', 6),
+    0
   )
 
   return polPerUsdt // POL wei per 1 USDT
@@ -178,7 +182,8 @@ const polPerUsdt = await getPolUsdtPrice(provider)
 const feeInUSDT = totalChainTokenFee
   .mul(1_000_000)
   .div(polPerUsdt)
-  .mul(110).div(100)
+  .mul(110)
+  .div(100)
 
 console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, 6))
 ```

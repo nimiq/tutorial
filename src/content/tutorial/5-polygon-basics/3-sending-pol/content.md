@@ -27,7 +27,7 @@ With your wallet funded, it is time to perform a live transaction on Polygon Amo
 
 Keep a small buffer of POL in your wallet; even ERC20 transfers consume it for gas.
 
-> 💡 **Nimiq contrast:** Nimiq blockchain has zero transaction fees. No gas token, no fee calculations—just send. We'll revisit this advantage in Section 6 when we tackle gasless transactions!
+> 💡 **Nimiq contrast:** Nimiq blockchain has zero transaction fees. No gas token, no fee calculations—just send. We will revisit this advantage in Section 6 when we tackle gasless transactions!
 
 ---
 
@@ -149,7 +149,7 @@ Gas Fee = Gas Used × Gas Price
 - **Gas Used** represents the work done (a simple transfer is roughly 21,000 units).
 - **Gas Price** fluctuates with network demand.
 
-On Polygon Amoy these fees are tiny, but cultivating the habit of checking them now will pay off on higher-cost networks.
+On Polygon Amoy, these fees are tiny, but cultivating the habit of checking them now will pay off on higher-cost networks.
 
 ---
 

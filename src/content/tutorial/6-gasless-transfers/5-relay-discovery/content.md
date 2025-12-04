@@ -13,7 +13,7 @@ terminal:
 
 # Discovering Relays Dynamically
 
-Hardcoding a relay URL works for demos, but production code needs to discover healthy relays automatically. In this lesson you will query the OpenGSN RelayHub contract, vet the results, and pick a relay that is ready to carry your transaction. The approach mirrors what the Nimiq wallet uses in production.
+Hardcoding a relay URL works for demos, but production code needs to discover healthy relays automatically. In this lesson, you will query the OpenGSN RelayHub contract, vet the results, and pick a relay that is ready to carry your transaction. This approach mirrors what the Nimiq wallet uses in production.
 
 ---
 
@@ -127,7 +127,7 @@ async function validateRelay(relay, provider) {
 Checks to keep in mind:
 
 - **Version** must start with 2.x to match the OpenGSN v2 protocol.
-- **Network ID** should be 137 for Polygon mainnet.
+- **Network / chain ID** should be 137 for Polygon mainnet.
 - **Worker balance** needs enough POL to front your transaction (the example uses 0.01 POL as a floor).
 - **Readiness flag** confirms the relay advertises itself as accepting requests.
 - **Fee caps** ensure you never accept a base fee or a percentage beyond your policy.
@@ -177,4 +177,4 @@ You now have a discovery pipeline that:
 - ✅ Falls back gracefully when a relay fails health checks.
 - ✅ Removes the last hardcoded relay URL from your workflow.
 
-Next up: **Lesson 5** where you replace static fees with a dynamic, production-ready calculation.
+Next up: **Optimized Fee Calculation**, where you replace static fees with a dynamic, production-ready calculation.

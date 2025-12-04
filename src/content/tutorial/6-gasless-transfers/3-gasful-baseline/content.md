@@ -13,7 +13,18 @@ terminal:
 
 # Polygon USDT: The Gasful Baseline
 
-Before we can appreciate gasless transfers, we need to measure the traditional cost. This lesson connects to Polygon mainnet, records your POL (formerly MATIC) and USDT balances, and sends a standard ERC20 transfer that consumes native gas. We will reuse the same credentials when we add OpenGSN in the next lesson, so keep them handy.
+Before we can appreciate gasless transfers, we need to measure the baseline cost. This lesson connects to Polygon mainnet, records your POL (formerly MATIC) and USDT balances, and sends a standard ERC20 transfer that pays gas in POL. We will reuse the same credentials when we add OpenGSN in the next lesson, so keep them handy.
+
+---
+
+## Learning Goals
+
+By the end of this lesson you will:
+
+- Connect to Polygon mainnet with a funded wallet.
+- Measure POL and USDT balances before and after a transfer.
+- Send a baseline USDT ERC20 transfer that pays gas in POL.
+- Capture the transaction receipt and explorer link for later comparison.
 
 ---
 

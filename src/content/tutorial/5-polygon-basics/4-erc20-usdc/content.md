@@ -13,9 +13,7 @@ terminal:
 
 # ERC20 Tokens & USDC Transfers
 
-# ERC20 Tokens & USDC Transfers
-
-Native POL transfers are only half the story on Polygon. The majority of assets you will handle live inside smart contracts that follow the ERC20 standard. In this lesson you will apply everything you learned about wallets and providers to interact with **USDC**, a widely used stablecoin on Polygon Amoy.
+Native POL transfers are only half the story on Polygon. The majority of assets you will handle live inside smart contracts that follow the ERC20 standard. In this lesson, you will apply everything you learned about wallets and providers to interact with **USDC**, a widely used stablecoin on Polygon Amoy.
 
 ---
 
@@ -133,7 +131,7 @@ Key differences from the POL workflow:
 
 ## Step 5: Reconcile Balances
 
-After confirmation, confirm that both your USDC and POL balances changed as expected.
+After confirmation, check that both your USDC and POL balances have changed as expected.
 
 ```js
 const newBalance = await usdc.balanceOf(wallet.address)
@@ -150,8 +148,8 @@ console.log('\n⛽ Gas paid in POL:', ethers.utils.formatEther(polBalance))
 
 You should see:
 
-- Your USDC balance drop by the transfer amount.
-- Your POL balance dip slightly from gas costs.
+- Your USDC balance drops by the transfer amount.
+- Your POL balance dips slightly from gas costs.
 - The recipient's USDC balance increases accordingly.
 
 ---
@@ -163,7 +161,7 @@ ERC20 transfers invoke smart contract logic, so they use more gas than native tr
 - Native POL transfer: about 21,000 gas.
 - ERC20 transfer: typically 50,000 to 65,000 gas.
 
-Polygon's low fees mean the difference is small, but it is important to keep in mind on higher-cost networks.
+Polygon’s low fees mean the difference is small, but it is important to keep in mind on higher-cost networks.
 
 ---
 

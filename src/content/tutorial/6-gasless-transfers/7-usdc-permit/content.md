@@ -13,7 +13,7 @@ terminal:
 
 # USDC with EIP-2612 Permit
 
-In Lesson 6 you built gasless USDT transfers using a custom meta-transaction approval. USDC ships with a standardized approval flow called **EIP-2612 Permit**. This lesson explains what that standard changes, why it exists, and how to adapt the gasless pipeline you already wrote so that USDC transfers go through the same relay infrastructure.
+Earlier in this section you built gasless USDT transfers using a custom meta-transaction approval. USDC ships with a standardized approval flow called **EIP-2612 Permit**. This lesson explains what that standard changes, why it exists, and how to adapt the gasless pipeline you already wrote so that USDC transfers go through the same relay infrastructure.
 
 ---
 
@@ -37,13 +37,13 @@ EIP-2612 is an extension of ERC-20 that lets a token holder authorize spending v
 
 Tokens like USDC, DAI, and WETH adopted the standard because it enables wallets and relayers to cover approval gas costs while staying interoperable with any contract that understands permits (for example, Uniswap routers or Aave).
 
-Older tokens such as USDT predate EIP-2612, so they expose custom meta-transaction logic instead. That is why Lesson 6 had to sign the entire `transferWithApproval` function payload, whereas USDC only needs the numeric values that describe the allowance.
+Older tokens such as USDT predate EIP-2612, so they expose custom meta-transaction logic instead. That is why the gasless USDT lesson had to sign the entire `transferWithApproval` function payload, whereas USDC only needs the numeric values that describe the allowance.
 
 ---
 
 ## EIP-2612 Permit vs Meta-Transaction
 
-### USDT Meta-Transaction (Lesson 6)
+### USDT Meta-Transaction (Gasless USDT Lesson)
 ```js
 // Salt-based domain separator
 const domain = {
@@ -87,7 +87,7 @@ const types = {
 
 ## Key Differences
 
-| Aspect | USDT Meta-Transaction (Lesson 6) | USDC Permit (This Lesson) |
+| Aspect | USDT Meta-Transaction (Gasless USDT Lesson) | USDC Permit (This Lesson) |
 |--------|---------------------------------|---------------------------|
 | **Standardization** | Custom, tether-specific | Formalized in EIP-2612 |
 | **Domain separator** | Uses `salt` derived from chain | Uses `version` plus `chainId` |
@@ -213,7 +213,7 @@ const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc).mul(110).div(100)
 
 ## Step 5: Rest of Flow Stays the Same
 
-After building the transfer calldata, the rest is identical to Lesson 6:
+After building the transfer calldata, the rest is identical to the gasless USDT lesson:
 
 1. Get forwarder nonce from transfer contract
 2. Build OpenGSN `ForwardRequest`
