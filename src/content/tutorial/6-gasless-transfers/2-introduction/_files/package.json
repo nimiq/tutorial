@@ -1,0 +1,1 @@
+{ "name": "gasless-demo", "type": "module", "version": "1.0.0", "scripts": { "demo": "node --watch index.js" }, "dependencies": { "@opengsn/common": "^2.2.6", "axios": "^1.6.0", "ethers": "^5.7.2" } }

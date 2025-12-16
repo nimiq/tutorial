@@ -1,0 +1,12 @@
+{
+  "name": "polygon-usdc-mainnet-lab",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "send": "node --watch index.js"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2"
+  }
+}
