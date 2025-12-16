@@ -49,7 +49,7 @@ const UNISWAP_QUOTER_ABI = [
 async function discoverRelays(provider) {
   const relayHub = new ethers.Contract(RELAY_HUB_ADDRESS, RELAY_HUB_ABI, provider)
   const currentBlock = await provider.getBlockNumber()
-  const LOOKBACK_BLOCKS = 1600 // ~1 hour (2s per block)
+  const LOOKBACK_BLOCKS = 1800 // ~1 hour (30 blocks/min * 60 min)
 
   const events = await relayHub.queryFilter(
     relayHub.filters.RelayServerRegistered(),
@@ -144,8 +144,8 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   // Step 2: Take max of network and relay minimum
   const baseGasPrice = networkGasPrice.gt(relay.minGasPrice) ? networkGasPrice : relay.minGasPrice
 
-  // Step 3: Apply buffer (10% mainnet, 25% testnet)
-  const bufferPercentage = isMainnet ? 110 : 125
+  // Step 3: Apply buffer (20% mainnet, 25% testnet)
+  const bufferPercentage = isMainnet ? 120 : 125
   const bufferedGasPrice = baseGasPrice.mul(bufferPercentage).div(100)
 
   console.log('  Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'gwei'), 'gwei', `(${bufferPercentage}%)`)
@@ -171,9 +171,9 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   const polPerUsdt = await getPolUsdtPrice(provider)
   console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdt), 'POL per USDT')
 
-  // Step 9: Convert POL fee to USDT with 10% buffer
+  // Step 9: Convert POL fee to USDT
   // totalPOLCost (POL wei) / polPerUsdt (POL wei per USDT) = USDT base units
-  const feeInUSDT = totalPOLCost.mul(1_000_000).div(polPerUsdt).mul(110).div(100)
+  const feeInUSDT = totalPOLCost.mul(1_000_000).div(polPerUsdt)
 
   console.log('  USDT fee:', ethers.utils.formatUnits(feeInUSDT, 6), 'USDT')
 
@@ -336,13 +336,14 @@ async function main() {
     verifyingContract: TRANSFER_CONTRACT_ADDRESS,
   }
 
-  const { types, domain, primaryType, message } = new TypedRequestData(
-    forwarderDomain.chainId.toString(),
+  const typedData = new TypedRequestData(
+    forwarderDomain.chainId,
     forwarderDomain.verifyingContract,
     relayRequest,
   )
 
-  const relaySignature = await wallet._signTypedData(domain, types, message)
+  const { EIP712Domain, ...cleanedTypes } = typedData.types
+  const relaySignature = await wallet._signTypedData(typedData.domain, cleanedTypes, typedData.message)
 
   // Submit to relay
   console.log('\n📡 Submitting to relay...')

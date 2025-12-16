@@ -232,7 +232,7 @@ async function main() {
       from: wallet.address,
       to: TRANSFER_CONTRACT_ADDRESS,
       value: '0',
-      gas: '350000',
+      gas: '300000',
       nonce: forwarderNonce.toString(),
       data: transferCalldata,
       validUntil: validUntil.toString(),
@@ -257,13 +257,14 @@ async function main() {
     verifyingContract: TRANSFER_CONTRACT_ADDRESS,
   }
 
-  const { types, domain, primaryType, message } = new TypedRequestData(
-    forwarderDomain.chainId.toString(),
+  const typedData = new TypedRequestData(
+    forwarderDomain.chainId,
     forwarderDomain.verifyingContract,
     relayRequest,
   )
 
-  const relaySignature = await wallet._signTypedData(domain, types, message)
+  const { EIP712Domain, ...cleanedTypes } = typedData.types
+  const relaySignature = await wallet._signTypedData(typedData.domain, cleanedTypes, typedData.message)
 
   // Submit to relay
   console.log('\n📡 Submitting to relay...')

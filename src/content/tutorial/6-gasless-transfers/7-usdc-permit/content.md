@@ -179,16 +179,16 @@ const transferCalldata = transferContract.interface.encodeFunctionData('transfer
   transferAmount, // amount
   RECEIVER_ADDRESS, // target
   feeAmount, // fee
-  deadline, // deadline ⚠️ New parameter
+  approvalAmount, // value (approval amount, not deadline)
   r, // sigR
   s, // sigS
   v, // sigV
 ])
 ```
 
-`transferWithPermit` consumes the permit signature directly. Compare this to the USDT version: instead of passing an encoded `approve()` call, you now hand the relay the raw signature components plus a deadline.
+`transferWithPermit` consumes the permit signature directly. Compare this to the USDT version: instead of passing an encoded `approve()` call, you now hand the relay the raw signature components. The 5th parameter is the approval `value` (how much the contract can spend), not the permit deadline.
 
-If you changed the `deadline` value when signing the permit, make sure the same variable is used here. Hardcoding `MaxUint256` in one place and not the other invalidates the signature.
+If you changed the permit `value` when signing, make sure the same amount is passed to `transferWithPermit`. The deadline from the permit signature is used internally by the token contract.
 
 ---
 
@@ -232,7 +232,7 @@ If you already wrapped these steps in helper functions, you should not need to t
 ```js title="usdc-abi.js" showLineNumbers mark=1-5
 const TRANSFER_ABI = [
   // Changed from transferWithApproval
-  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 deadline, bytes32 sigR, bytes32 sigS, uint8 sigV)',
+  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 value, bytes32 sigR, bytes32 sigS, uint8 sigV)',
   'function getNonce(address) view returns (uint256)',
   'function getRequiredRelayGas(bytes4 methodId) view returns (uint256)',
 ]

@@ -1,5 +1,5 @@
+import { HttpClient, HttpWrapper } from '@opengsn/common'
 import { TypedRequestData } from '@opengsn/common/dist/EIP712/TypedRequestData.js'
-import { getHttpClient } from '@opengsn/common/dist/HttpClient.js'
 import { ethers } from 'ethers'
 
 // 🔐 Paste your private key from Lesson 1 here!
@@ -8,7 +8,7 @@ const PRIVATE_KEY = '0xPASTE_YOUR_PRIVATE_KEY_HERE_FROM_LESSON_1'
 // TODO: Implement relay discovery
 // TODO: Calculate optimized fees for each relay:
 //       - Get network gas price and relay minimum
-//       - Apply safety buffers (10% mainnet, 25% testnet)
+//       - Apply safety buffers (20% mainnet, 25% testnet)
 //       - Calculate POL cost with relay percentage fee
 //       - Convert to USDT with safety margin
 // TODO: Compare relays and select the cheapest

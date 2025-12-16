@@ -78,7 +78,7 @@ if (method === 'redeemWithSecretInData') {
   bufferPercentage = 150 // 50% buffer (swap fee volatility)
 }
 else if (ENV_MAIN) {
-  bufferPercentage = 110 // 10% buffer (mainnet)
+  bufferPercentage = 120 // 20% buffer (mainnet)
 }
 else {
   bufferPercentage = 125 // 25% buffer (testnet, more volatile)
@@ -178,12 +178,10 @@ async function getPolUsdtPrice(provider) {
 const polPerUsdt = await getPolUsdtPrice(provider)
 
 // Convert: totalPOLCost / polPerUsdt = USDT units
-// Apply 10% buffer for safety
+// No additional buffer - gas price buffer is sufficient
 const feeInUSDT = totalChainTokenFee
   .mul(1_000_000)
   .div(polPerUsdt)
-  .mul(110)
-  .div(100)
 
 console.log('USDT fee:', ethers.utils.formatUnits(feeInUSDT, 6))
 ```
@@ -264,7 +262,7 @@ async function calculateOptimalFee(relay, provider, transferContract) {
     : relay.minGasPrice
 
   // 2. Apply buffer
-  const bufferedGasPrice = baseGasPrice.mul(110).div(100) // 10% mainnet
+  const bufferedGasPrice = baseGasPrice.mul(120).div(100) // 20% mainnet
 
   // 3. Get gas limit from contract
   const gasLimit = await transferContract.getRequiredRelayGas('0x8d89149b')
@@ -276,7 +274,7 @@ async function calculateOptimalFee(relay, provider, transferContract) {
 
   // 5. Convert to USDT via Uniswap
   const polPerUsdt = await getPolUsdtPrice(provider)
-  const usdtFee = totalPOL.mul(1_000_000).div(polPerUsdt).mul(110).div(100)
+  const usdtFee = totalPOL.mul(1_000_000).div(polPerUsdt)
 
   return { usdtFee, gasPrice: bufferedGasPrice, gasLimit }
 }

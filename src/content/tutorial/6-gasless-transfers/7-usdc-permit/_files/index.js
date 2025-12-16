@@ -28,7 +28,7 @@ const USDC_ABI = [
 ]
 
 const TRANSFER_ABI = [
-  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 deadline, bytes32 sigR, bytes32 sigS, uint8 sigV)',
+  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 value, bytes32 sigR, bytes32 sigS, uint8 sigV)',
   'function getNonce(address) view returns (uint256)',
   'function getRequiredRelayGas(bytes4 methodId) view returns (uint256)',
 ]
@@ -48,7 +48,7 @@ const UNISWAP_QUOTER_ABI = [
 async function discoverRelays(provider) {
   const relayHub = new ethers.Contract(RELAY_HUB_ADDRESS, RELAY_HUB_ABI, provider)
   const currentBlock = await provider.getBlockNumber()
-  const LOOKBACK_BLOCKS = 1600 // ~1 hour
+  const LOOKBACK_BLOCKS = 1800 // ~1 hour (30 blocks/min * 60 min)
 
   const events = await relayHub.queryFilter(
     relayHub.filters.RelayServerRegistered(),
@@ -132,7 +132,7 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   console.log('  Relay min gas price:', ethers.utils.formatUnits(relay.minGasPrice, 'gwei'), 'gwei')
 
   const baseGasPrice = networkGasPrice.gt(relay.minGasPrice) ? networkGasPrice : relay.minGasPrice
-  const bufferPercentage = isMainnet ? 110 : 125
+  const bufferPercentage = isMainnet ? 120 : 125
   const bufferedGasPrice = baseGasPrice.mul(bufferPercentage).div(100)
 
   console.log('  Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'gwei'), 'gwei', `(${bufferPercentage}%)`)
@@ -154,8 +154,8 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
 
   // console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdc), 'POL per USDC')
 
-  // TODO: Convert POL fee to USDC with 10% buffer
-  // const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc).mul(110).div(100)
+  // TODO: Convert POL fee to USDC
+  // const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc)
 
   // console.log('  USDC fee:', ethers.utils.formatUnits(feeInUSDC, 6), 'USDC')
 
@@ -263,7 +263,7 @@ async function main() {
   //   deadline: ethers.constants.MaxUint256
 
   // TODO: Build transfer calldata with transferWithPermit
-  // Parameters: [token, amount, target, fee, deadline, r, s, v]
+  // Parameters: [token, amount, target, fee, approvalAmount, r, s, v]
 
   // TODO: Build relay request (same as Lesson 6)
 

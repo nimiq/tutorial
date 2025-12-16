@@ -29,7 +29,7 @@ const USDC_ABI = [
 ]
 
 const TRANSFER_ABI = [
-  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 deadline, bytes32 sigR, bytes32 sigS, uint8 sigV)',
+  'function transferWithPermit(address token, uint256 amount, address target, uint256 fee, uint256 value, bytes32 sigR, bytes32 sigS, uint8 sigV)',
   'function getNonce(address) view returns (uint256)',
   'function getRequiredRelayGas(bytes4 methodId) view returns (uint256)',
 ]
@@ -49,7 +49,7 @@ const UNISWAP_QUOTER_ABI = [
 async function discoverRelays(provider) {
   const relayHub = new ethers.Contract(RELAY_HUB_ADDRESS, RELAY_HUB_ABI, provider)
   const currentBlock = await provider.getBlockNumber()
-  const LOOKBACK_BLOCKS = 1600 // ~1 hour (2s per block)
+  const LOOKBACK_BLOCKS = 1800 // ~1 hour (30 blocks/min * 60 min)
 
   const events = await relayHub.queryFilter(
     relayHub.filters.RelayServerRegistered(),
@@ -144,8 +144,8 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   // Step 2: Take max of network and relay minimum
   const baseGasPrice = networkGasPrice.gt(relay.minGasPrice) ? networkGasPrice : relay.minGasPrice
 
-  // Step 3: Apply buffer (10% mainnet, 25% testnet)
-  const bufferPercentage = isMainnet ? 110 : 125
+  // Step 3: Apply buffer (20% mainnet, 25% testnet)
+  const bufferPercentage = isMainnet ? 120 : 125
   const bufferedGasPrice = baseGasPrice.mul(bufferPercentage).div(100)
 
   console.log('  Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'gwei'), 'gwei', `(${bufferPercentage}%)`)
@@ -171,9 +171,9 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   const polPerUsdc = await getPolUsdcPrice(provider)
   console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdc), 'POL per USDC')
 
-  // Step 9: Convert POL fee to USDC with 10% buffer
+  // Step 9: Convert POL fee to USDC
   // totalPOLCost (POL wei) / polPerUsdc (POL wei per USDC) = USDC base units
-  const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc).mul(110).div(100)
+  const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc)
 
   console.log('  USDC fee:', ethers.utils.formatUnits(feeInUSDC, 6), 'USDC')
 
@@ -290,13 +290,13 @@ async function main() {
   const approvalSignature = await wallet._signTypedData(usdcDomain, usdcTypes, usdcMessage)
   const { r: sigR, s: sigS, v: sigV } = ethers.utils.splitSignature(approvalSignature)
 
-  // Build transfer calldata
+  // Build transfer calldata (5th param is approval value, not deadline)
   const transferCalldata = transferContract.interface.encodeFunctionData('transferWithPermit', [
     USDC_ADDRESS,
     transferAmount,
     RECEIVER_ADDRESS,
     feeAmount,
-    deadline,
+    approvalAmount,
     sigR,
     sigS,
     sigV,
@@ -337,13 +337,14 @@ async function main() {
     verifyingContract: TRANSFER_CONTRACT_ADDRESS,
   }
 
-  const { types, domain, primaryType, message } = new TypedRequestData(
-    forwarderDomain.chainId.toString(),
+  const typedData = new TypedRequestData(
+    forwarderDomain.chainId,
     forwarderDomain.verifyingContract,
     relayRequest,
   )
 
-  const relaySignature = await wallet._signTypedData(domain, types, message)
+  const { EIP712Domain, ...cleanedTypes } = typedData.types
+  const relaySignature = await wallet._signTypedData(typedData.domain, cleanedTypes, typedData.message)
 
   // Submit to relay
   console.log('\n📡 Submitting to relay...')
