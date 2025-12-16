@@ -62,7 +62,7 @@ POLYGON_RPC_URL=https://polygon-rpc.com
 SPONSOR_PRIVATE_KEY=your_mainnet_key_with_USDT
 RECEIVER_ADDRESS=0x...
 TRANSFER_AMOUNT_USDT=1.0
-RELAY_URL=https://polygon-mainnet-relay.nimiq-network.com
+RELAY_URL=https://polygon-relay.fastspot.io
 ```
 
 > ⚠️ **Mainnet required:** you need a mainnet wallet that holds at least 1-2 USDT and a small amount of POL. Acquire funds via your preferred exchange or bridge service.
@@ -89,7 +89,7 @@ console.log('🔑 Sponsor:', wallet.address)
 ```
 
 The sponsor wallet is the account that will sign messages and reimburse the relay.
-The concrete contract addresses are published in `@cashlink/currency`’s constants module and mirrored in the [Nimiq wallet gasless guide](https://developers.nimiq.com/). Always verify them against the latest deployment notes before running on mainnet.
+The concrete contract addresses are documented in the [Nimiq Developer Center](https://developers.nimiq.com/). Always verify them against the latest deployment notes before running on mainnet.
 
 ---
 

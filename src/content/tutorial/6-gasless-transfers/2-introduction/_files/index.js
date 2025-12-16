@@ -52,7 +52,7 @@ async function main() {
 
   // In production, you'd call discoverActiveRelay() here
   // For demo purposes, we'll show what would happen
-  console.log('   ✅ Found relay: https://polygon-mainnet-relay.nimiq-network.com')
+  console.log('   ✅ Found relay: https://polygon-relay.fastspot.io')
   console.log('   ├─ Version: 2.2.6')
   console.log('   ├─ Worker Balance: 0.15 POL')
   console.log('   ├─ Base Fee: 0')

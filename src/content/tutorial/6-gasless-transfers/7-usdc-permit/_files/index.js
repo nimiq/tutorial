@@ -138,30 +138,34 @@ async function calculateOptimalFee(relay, provider, transferContract, isMainnet 
   console.log('  Buffered gas price:', ethers.utils.formatUnits(bufferedGasPrice, 'gwei'), 'gwei', `(${bufferPercentage}%)`)
 
   // TODO: Get gas limit using METHOD_SELECTOR_TRANSFER_WITH_PERMIT
+  // const gasLimit = await transferContract.getRequiredRelayGas(METHOD_SELECTOR_TRANSFER_WITH_PERMIT)
 
-  console.log('  Gas limit:', gasLimit.toString())
+  // console.log('  Gas limit:', gasLimit.toString())
 
-  const baseCost = bufferedGasPrice.mul(gasLimit)
-  const costWithPctFee = baseCost.mul(100 + relay.pctRelayFee).div(100)
-  const totalPOLCost = costWithPctFee.add(relay.baseRelayFee)
+  // const baseCost = bufferedGasPrice.mul(gasLimit)
+  // const costWithPctFee = baseCost.mul(100 + relay.pctRelayFee).div(100)
+  // const totalPOLCost = costWithPctFee.add(relay.baseRelayFee)
 
-  console.log('  Total POL cost:', ethers.utils.formatEther(totalPOLCost), 'POL')
-  console.log('  Relay fee:', `${relay.pctRelayFee}%`)
+  // console.log('  Total POL cost:', ethers.utils.formatEther(totalPOLCost), 'POL')
+  // console.log('  Relay fee:', `${relay.pctRelayFee}%`)
 
   // TODO: Get POL/USDC price from Uniswap
+  // const polPerUsdc = await getPolUsdcPrice(provider)
 
-  console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdc), 'POL per USDC')
+  // console.log('  Uniswap rate:', ethers.utils.formatEther(polPerUsdc), 'POL per USDC')
 
   // TODO: Convert POL fee to USDC with 10% buffer
+  // const feeInUSDC = totalPOLCost.mul(1_000_000).div(polPerUsdc).mul(110).div(100)
 
-  console.log('  USDC fee:', ethers.utils.formatUnits(feeInUSDC, 6), 'USDC')
+  // console.log('  USDC fee:', ethers.utils.formatUnits(feeInUSDC, 6), 'USDC')
 
-  return {
-    usdcFee: feeInUSDC,
-    gasPrice: bufferedGasPrice,
-    gasLimit,
-    polCost: totalPOLCost,
-  }
+  // TODO: Return calculated values
+  // return {
+  //   usdcFee: feeInUSDC,
+  //   gasPrice: bufferedGasPrice,
+  //   gasLimit,
+  //   polCost: totalPOLCost,
+  // }
 }
 
 async function findBestRelay(provider, transferContract) {
@@ -266,9 +270,10 @@ async function main() {
   // TODO: Sign relay request (same as Lesson 6)
 
   // TODO: Submit to relay (same as Lesson 6)
+  // const txHash = ...
 
   console.log('\n✅ Gasless USDC transaction sent!')
-  console.log('🔗 View:', `https://polygonscan.com/tx/${txHash}`)
+  // console.log('🔗 View:', `https://polygonscan.com/tx/${txHash}`)
   console.log('\n💡 Key differences from USDT:')
   console.log('   ✅ EIP-2612 Permit (not meta-transaction)')
   console.log('   ✅ Version-based domain separator')

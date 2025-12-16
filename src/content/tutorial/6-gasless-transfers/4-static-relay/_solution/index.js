@@ -13,7 +13,7 @@ const RELAY_HUB_ADDRESS = '0x6C28AfC105e65782D9Ea6F2cA68df84C9e7d750d' // RelayH
 const RECEIVER_ADDRESS = '0xA3E49ef624bEaC43D29Af86bBFdE975Abaa0E184' // Nimiq-controlled
 
 // Static relay (example - check if active)
-const RELAY_URL = 'https://polygon-mainnet-relay.nimiq-network.com'
+const RELAY_URL = 'https://polygon-relay.fastspot.io'
 
 const TRANSFER_AMOUNT_USDT = '0.01' // Minimal amount
 const STATIC_FEE_USDT = '0.01' // Static relay fee

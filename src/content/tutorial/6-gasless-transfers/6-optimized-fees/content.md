@@ -25,7 +25,7 @@ Hardcoding relay fees works for prototypes, but production systems need to adapt
 - Convert that POL cost into USDT using conservative pricing assumptions.
 - Compare multiple relays and pick the most cost-effective option.
 
-The math mirrors the `calculateGaslessFee` helper inside `@cashlink/currency/src/gasless/fees.ts`. Cross-reference it with the [OpenGSN fee model documentation](https://docs.opengsn.org/relay/relay-lifecycle.html#fees) and the [Nimiq wallet engineering notes](https://developers.nimiq.com/) if you want to see the production lineage.
+The maths mirrors the fee calculation used in the Nimiq wallet. Cross-reference it with the [OpenGSN fee model documentation](https://docs.opengsn.org/relay/relay-lifecycle.html#fees) and the [Nimiq Developer Center](https://developers.nimiq.com/) if you want to see the production lineage.
 
 ---
 
