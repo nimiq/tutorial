@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import vue from '@astrojs/vue'
 import tutorialkit from '@tutorialkit/astro'
 import { defineConfig } from 'astro/config'
+import { llmsPlugin } from 'vite-plugin-llmstxt'
 
 // Read package version at build time
 const __filename = fileURLToPath(import.meta.url)
@@ -19,6 +20,7 @@ export default defineConfig({
     define: {
       'import.meta.env.PACKAGE_VERSION': JSON.stringify(packageJson.version),
     },
+    plugins: [llmsPlugin({ preset: 'tutorialkit', outputDir: 'dist' })],
   },
   integrations: [
     tutorialkit({
